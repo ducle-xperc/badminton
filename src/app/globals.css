@@ -13,6 +13,7 @@
   --color-background-dark: #101622;
   --color-gold-accent: #FFD700;
   --color-navy-deep: #0a0e1a;
+  --color-card-dark: #1a2133;
   --font-display: var(--font-lexend);
 }
 
@@ -30,4 +31,12 @@ body {
 
 .court-line {
   background-color: rgba(255, 215, 0, 0.05);
+}
+
+.hide-scroll::-webkit-scrollbar {
+  display: none;
+}
+.hide-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
