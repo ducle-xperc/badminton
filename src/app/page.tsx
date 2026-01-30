@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col justify-center text-white">
@@ -78,12 +80,15 @@ export default function Home() {
               </div>
 
               {/* CTA Button */}
-              <button className="w-full bg-primary hover:bg-primary/90 text-white font-extrabold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/30 text-lg uppercase tracking-wide cursor-pointer">
+              <Link
+                href="/login"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-extrabold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/30 text-lg uppercase tracking-wide cursor-pointer"
+              >
                 JOIN NOW
                 <span className="material-symbols-outlined text-[24px]">
                   arrow_forward
                 </span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
