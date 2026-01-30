@@ -1,0 +1,323 @@
+<!doctype html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              "gold-accent": "#FFD700",
+              "navy-deep": "#0a0e1a",
+              "card-dark": "#1a2133",
+            },
+            fontFamily: {
+              display: ["Lexend", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              "2xl": "1rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <title>XPERC Tournament List</title>
+    <style type="text/tailwindcss">
+      body {
+        min-height: 100dvh;
+      }
+      .court-line {
+        background-color: rgba(255, 215, 0, 0.05);
+      }
+      .hide-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scroll {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+  <body class="bg-navy-deep font-display antialiased text-white">
+    <div
+      class="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col"
+    >
+      <div class="absolute inset-0 pointer-events-none opacity-10">
+        <div class="absolute top-1/4 left-0 w-full h-[2px] court-line"></div>
+        <div class="absolute bottom-1/4 left-0 w-full h-[2px] court-line"></div>
+        <div
+          class="absolute left-1/2 top-0 w-[2px] h-full court-line -translate-x-1/2"
+        ></div>
+        <div
+          class="absolute -top-20 -right-20 w-64 h-64 border border-gold-accent/20 rounded-full"
+        ></div>
+        <div
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5"
+        >
+          <span class="material-symbols-outlined text-[300px]"
+            >emoji_events</span
+          >
+        </div>
+      </div>
+      <div
+        class="relative z-10 flex items-center justify-between px-6 py-6 pt-8 bg-gradient-to-b from-navy-deep to-transparent"
+      >
+        <div class="flex items-center gap-2">
+          <button
+            class="size-10 rounded-xl bg-card-dark/50 border border-white/5 flex items-center justify-center text-white backdrop-blur-md hover:bg-card-dark transition-colors"
+          >
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+        </div>
+        <h1 class="text-lg font-bold tracking-wide uppercase text-white/90">
+          Tournaments
+        </h1>
+        <div class="flex items-center gap-4">
+          <button
+            class="size-10 rounded-xl bg-card-dark/50 border border-white/5 flex items-center justify-center text-white relative backdrop-blur-md hover:bg-card-dark transition-colors"
+          >
+            <span class="material-symbols-outlined text-xl">search</span>
+          </button>
+        </div>
+      </div>
+      <div class="relative z-10 px-6 mb-6">
+        <div class="flex gap-3 overflow-x-auto hide-scroll pb-2">
+          <button
+            class="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold shadow-lg shadow-primary/25 whitespace-nowrap transition-transform active:scale-95"
+          >
+            Upcoming
+          </button>
+          <button
+            class="px-5 py-2.5 rounded-full bg-card-dark border border-white/10 text-gray-400 text-sm font-medium hover:text-white hover:border-white/30 transition-colors whitespace-nowrap"
+          >
+            Ongoing
+          </button>
+          <button
+            class="px-5 py-2.5 rounded-full bg-card-dark border border-white/10 text-gray-400 text-sm font-medium hover:text-white hover:border-white/30 transition-colors whitespace-nowrap"
+          >
+            Completed
+          </button>
+          <button
+            class="px-5 py-2.5 rounded-full bg-card-dark border border-white/10 text-gray-400 text-sm font-medium hover:text-white hover:border-white/30 transition-colors whitespace-nowrap"
+          >
+            My Events
+          </button>
+        </div>
+      </div>
+      <div
+        class="relative z-10 flex-1 px-6 overflow-y-auto hide-scroll pb-28 space-y-5"
+      >
+        <div
+          class="group relative w-full h-72 rounded-3xl overflow-hidden shadow-xl shadow-black/40 border border-white/5"
+        >
+          <img
+            alt="Tournament"
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuByZzkkClOrk1O9b7Yw6OPeeMBnUlxnVgoHvIFX45_8IYXyqsxKBrm8SRDI2ru1D_IMDNOmfA9zC1gXpqmy4WzUVjREdqZHHD5-oH_Ve6JfUK8SHUR40QiEym2A8OWALBSaau8nr_l2qmkg1xFjc0F0nSgFxEoTg5d8pMpRLc_4EQo2a4gslVSEWBZm0HOWgZ33usE4eWkR81thRF2EUIlP8nVlI_SDdoocMxqKOdhJEhDlVz0A-zPSNoHM9gFC9odfK4qFl1QHRBE"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/70 to-transparent"
+          ></div>
+          <div
+            class="absolute top-4 right-4 bg-gold-accent text-navy-deep text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 z-10"
+          >
+            <span class="material-symbols-outlined text-[14px]"
+              >calendar_today</span
+            >
+            OCT 24-30
+          </div>
+          <div
+            class="absolute bottom-0 left-0 w-full p-5 flex flex-col gap-2 z-10"
+          >
+            <div class="flex items-center gap-2 mb-1">
+              <span
+                class="px-2 py-0.5 rounded bg-primary/30 border border-primary/30 text-primary text-[10px] font-bold uppercase backdrop-blur-sm"
+                >Major</span
+              >
+              <span
+                class="px-2 py-0.5 rounded bg-white/10 border border-white/10 text-gray-300 text-[10px] font-bold uppercase backdrop-blur-sm"
+                >Singles</span
+              >
+            </div>
+            <h2 class="text-2xl font-bold text-white leading-tight">
+              XPERC World Cup 2024
+            </h2>
+            <div class="flex items-center text-gray-300 text-sm gap-1.5 mb-2">
+              <span class="material-symbols-outlined text-[18px] text-primary"
+                >location_on</span
+              >
+              Vietnam Center Court
+            </div>
+            <button
+              class="w-full mt-1 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all"
+            >
+              Join Tournament
+              <span class="material-symbols-outlined text-sm"
+                >arrow_forward</span
+              >
+            </button>
+          </div>
+        </div>
+        <div
+          class="group relative w-full h-72 rounded-3xl overflow-hidden shadow-xl shadow-black/40 border border-white/5"
+        >
+          <img
+            alt="Tournament"
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzHJlz1IjuA4gUjP_1xmm4URgVoANCTc3E9MS-x4AJKW4Nnw3T7UdjcBlOrzHOGN9FtPjc6XDPPZ3ck5-_VmeudPLUA6_nT29WRDrTv4pMVGpnCwrrBf1GGE8fBiQWiYh1e06CtUWDNbNyvMxDjpdE-bfljgLKQgcdgtp7w3k2IeZNEXhEtMM9MMMcz13Ff8YnOJ0OWJXRqOwqTS6K8bTAT1JbYD5Tn90WeNs9Cq9ZiQzLNDfyYOapj9XNgW5TUjRTlw2SzcIwE20"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/60 to-transparent"
+          ></div>
+          <div
+            class="absolute top-4 right-4 bg-card-dark/80 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1 z-10"
+          >
+            <span class="material-symbols-outlined text-[14px] text-primary"
+              >schedule</span
+            >
+            NOV 12-15
+          </div>
+          <div
+            class="absolute bottom-0 left-0 w-full p-5 flex flex-col gap-2 z-10"
+          >
+            <div class="flex items-center gap-2 mb-1">
+              <span
+                class="px-2 py-0.5 rounded bg-purple-500/30 border border-purple-500/30 text-purple-400 text-[10px] font-bold uppercase backdrop-blur-sm"
+                >Regional</span
+              >
+              <span
+                class="px-2 py-0.5 rounded bg-white/10 border border-white/10 text-gray-300 text-[10px] font-bold uppercase backdrop-blur-sm"
+                >Doubles</span
+              >
+            </div>
+            <h2 class="text-2xl font-bold text-white leading-tight">
+              Asia Pacific Open
+            </h2>
+            <div class="flex items-center text-gray-300 text-sm gap-1.5 mb-2">
+              <span class="material-symbols-outlined text-[18px] text-primary"
+                >location_on</span
+              >
+              Jakarta Arena, Indonesia
+            </div>
+            <button
+              class="w-full mt-1 bg-primary hover:bg-blue-600 text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20"
+            >
+              View Details
+            </button>
+          </div>
+        </div>
+        <div
+          class="group relative w-full h-64 rounded-3xl overflow-hidden shadow-xl shadow-black/40 border border-white/5 grayscale opacity-80"
+        >
+          <img
+            alt="Tournament"
+            class="absolute inset-0 w-full h-full object-cover opacity-60"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCobkSSKJ0PZ2gvi_7BMhmbKuH61GIoPg9DgI6QPWVsNzy0Iwhi2OMpp0VWgbbPfg03vWuE40W4mcZkF0usCtOINv3qbGPrywRjs_t9uhSYYiSK20vac0VjILwlKiVZRwHd1iCIDTEErWxOnP_CP-iOHAifaLnZ3Ssa9b2U_z8K_YtSWNyB5nINwwA61yotOomkDLtCQTy9uCVvw6KGsWJnLEkoL_44V2hXftL735Yik-u1TIXpgiTTaoHU8GkD3J1gbtqW8hQE4AM"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/80 to-transparent"
+          ></div>
+          <div
+            class="absolute top-4 right-4 bg-gray-800/80 backdrop-blur text-gray-300 text-xs font-bold px-3 py-1.5 rounded-full border border-white/5 flex items-center gap-1 z-10"
+          >
+            <span class="material-symbols-outlined text-[14px]"
+              >check_circle</span
+            >
+            COMPLETED
+          </div>
+          <div
+            class="absolute bottom-0 left-0 w-full p-5 flex flex-col gap-2 z-10"
+          >
+            <h2 class="text-2xl font-bold text-gray-300 leading-tight">
+              Winter Championship '23
+            </h2>
+            <div class="flex items-center text-gray-400 text-sm gap-1.5 mb-2">
+              <span class="material-symbols-outlined text-[18px]"
+                >location_on</span
+              >
+              Seoul Gymnasium
+            </div>
+            <button
+              class="w-full mt-1 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+            >
+              See Results
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="absolute bottom-0 left-0 w-full z-20 pb-6 pt-4 bg-gradient-to-t from-navy-deep via-navy-deep to-transparent"
+      >
+        <div
+          class="mx-6 bg-card-dark/80 backdrop-blur-xl border border-white/5 rounded-2xl p-2 flex justify-between items-center px-4 shadow-2xl shadow-black/50"
+        >
+          <button
+            class="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors w-12 group"
+          >
+            <span
+              class="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform"
+              >grid_view</span
+            >
+          </button>
+          <button
+            class="flex flex-col items-center gap-1 p-2 text-primary w-12 group"
+          >
+            <span
+              class="material-symbols-outlined text-2xl fill-1 group-hover:scale-105 transition-transform"
+              >calendar_month</span
+            >
+          </button>
+          <div class="relative -top-8">
+            <button
+              class="size-14 rounded-full bg-primary shadow-lg shadow-primary/40 border-4 border-background-dark flex items-center justify-center text-white group"
+            >
+              <span
+                class="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform"
+                >sports_tennis</span
+              >
+            </button>
+          </div>
+          <button
+            class="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors w-12 group"
+          >
+            <span
+              class="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform"
+              >leaderboard</span
+            >
+          </button>
+          <button
+            class="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors w-12 group"
+          >
+            <span
+              class="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform"
+              >person</span
+            >
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

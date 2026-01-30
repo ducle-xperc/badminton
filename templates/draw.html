@@ -1,0 +1,349 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>XPERC Lucky Draw</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <!-- Material Symbols -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              display: ["Lexend", "sans-serif"],
+              body: ["Noto Sans", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              "2xl": "1rem",
+              full: "9999px",
+            },
+            boxShadow: {
+              neon: "0 0 20px rgba(19, 91, 236, 0.5), 0 0 60px rgba(19, 91, 236, 0.3)",
+              "neon-text":
+                "0 0 10px rgba(19, 91, 236, 0.8), 0 0 20px rgba(19, 91, 236, 0.5)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .bg-grid-pattern {
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.1) 1px,
+          transparent 1px
+        );
+        background-size: 20px 20px;
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white transition-colors duration-200"
+  >
+    <div
+      class="relative flex min-h-screen w-full flex-col overflow-x-hidden group/design-root"
+    >
+      <!-- Background Elements -->
+      <div class="fixed inset-0 z-0 pointer-events-none">
+        <div
+          class="absolute inset-0 bg-background-light dark:bg-background-dark"
+        ></div>
+        <!-- Dynamic Background Image with Overlay -->
+        <div
+          class="absolute inset-0 opacity-20 dark:opacity-30 bg-cover bg-center mix-blend-overlay"
+          data-alt="Abstract dynamic dark blue badminton court lines and shuttlecock motion trails"
+          style="
+            background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuCNDys1jBU0rccJhoEEnpk98RyWcbhcdtepFH_Zm12xSDmZlSWa0m23gcXUTdfZLZExJF67Z3rmpNghL8gk5QlBudZ4Rv-0N_XhHQXHq3eDvNzgSfE9wUC_mq8Vep3af2fomky7UJZ4cAUinnC7fvv6GASWvSO7vxrjLtfaLcxYLsgZD9Edh4gaMBG90WljtiUm89dj9CPZODgjYSzS7Uz0eA70NV9EjXlh7kRRxfD2JaY_7ieQeHJBaOSMpw2V_KiYkGe5VvqvIlE&quot;);
+          "
+        ></div>
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-transparent via-background-light/80 to-background-light dark:via-background-dark/80 dark:to-background-dark"
+        ></div>
+      </div>
+      <!-- Content Wrapper -->
+      <div class="relative z-10 flex flex-col h-full min-h-screen">
+        <!-- TopAppBar -->
+        <div
+          class="flex items-center p-4 justify-between bg-white/10 dark:bg-[#111318]/50 backdrop-blur-md sticky top-0 z-50 border-b border-white/5"
+        >
+          <div
+            class="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start cursor-pointer"
+          >
+            <span class="material-symbols-outlined text-[24px]"
+              >arrow_back</span
+            >
+          </div>
+          <h2
+            class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center truncate px-2"
+          >
+            XPERC Badminton WC
+          </h2>
+          <div class="flex size-12 items-center justify-end">
+            <button
+              class="flex items-center justify-center bg-transparent text-slate-900 dark:text-white p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            >
+              <span class="material-symbols-outlined text-[24px]"
+                >settings</span
+              >
+            </button>
+          </div>
+        </div>
+        <!-- Main Display Stage -->
+        <div
+          class="flex-1 flex flex-col items-center justify-center px-4 py-8 w-full max-w-md mx-auto"
+        >
+          <!-- HeadlineText -->
+          <div class="text-center mb-6">
+            <div
+              class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-3"
+            >
+              <span
+                class="w-2 h-2 rounded-full bg-primary animate-pulse"
+              ></span>
+              <span
+                class="text-primary text-xs font-bold uppercase tracking-wider"
+                >Live Draw</span
+              >
+            </div>
+            <h1
+              class="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight"
+            >
+              Lucky Number
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
+              Spin to generate a winner
+            </p>
+          </div>
+          <!-- Number Display Card -->
+          <div class="w-full relative group">
+            <!-- Glow effects behind -->
+            <div
+              class="absolute -inset-1 bg-gradient-to-r from-primary to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"
+            ></div>
+            <div
+              class="relative flex flex-col items-center justify-center p-8 rounded-2xl bg-white dark:bg-[#1c1f27] border border-slate-200 dark:border-white/10 shadow-xl overflow-hidden min-h-[280px]"
+            >
+              <!-- Decorative background inside card -->
+              <div
+                class="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none"
+              ></div>
+              <div class="absolute top-0 right-0 p-3 opacity-10">
+                <span class="material-symbols-outlined text-6xl rotate-12"
+                  >sports_tennis</span
+                >
+              </div>
+              <!-- The Number -->
+              <div class="flex flex-col items-center z-10">
+                <span
+                  class="text-[120px] font-extrabold leading-none text-transparent bg-clip-text bg-gradient-to-b from-primary to-blue-400 drop-shadow-sm font-display tracking-tighter tabular-nums"
+                  style="text-shadow: 0 0 40px rgba(19, 91, 236, 0.2)"
+                >
+                  42
+                </span>
+                <div
+                  class="h-1 w-24 bg-gradient-to-r from-transparent via-primary to-transparent mt-2 rounded-full opacity-50"
+                ></div>
+              </div>
+              <!-- Status Badge -->
+              <div
+                class="mt-8 flex items-center justify-between w-full px-4 border-t border-slate-100 dark:border-white/5 pt-4"
+              >
+                <div class="flex flex-col">
+                  <span
+                    class="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 font-bold"
+                    >Category</span
+                  >
+                  <span class="text-sm font-medium dark:text-slate-300"
+                    >Gold Tier</span
+                  >
+                </div>
+                <div class="flex flex-col items-end">
+                  <span
+                    class="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 font-bold"
+                    >Status</span
+                  >
+                  <span
+                    class="text-sm font-bold text-green-500 flex items-center gap-1"
+                  >
+                    <span class="material-symbols-outlined text-[14px]"
+                      >check_circle</span
+                    >
+                    Verified
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- History Section -->
+        <div class="w-full max-w-md mx-auto px-4 pb-4">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h3
+              class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]"
+            >
+              History
+            </h3>
+            <button
+              class="text-xs text-primary font-bold hover:text-blue-400 transition-colors"
+            >
+              VIEW ALL
+            </button>
+          </div>
+          <!-- Horizontal Scroll Container -->
+          <div
+            class="flex gap-3 overflow-x-auto pb-4 snap-x scrollbar-hide -mx-4 px-4 mask-fade-right"
+          >
+            <!-- History Item 1 -->
+            <div class="snap-center shrink-0 w-[240px]">
+              <div
+                class="flex flex-row items-center p-3 rounded-lg bg-white dark:bg-[#1c1f27] border border-slate-200 dark:border-white/5 shadow-sm"
+              >
+                <div
+                  class="size-12 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-lg bg-cover bg-center mr-3"
+                  data-alt="Profile avatar of previous winner with blue jersey"
+                  style="
+                    background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAMXtJVaB81d2V12v5OyK3Myu7KDza__oOwgXImvh-By1Qmv0p_AU_-x0_Y4x-usM_alV7ELh-tQXjHRdhwwzf2Onhb976XZMD-98ZSU6tdfbRH1oAQMp9mt61KWrA-a9bwU4E3oSTsPnV_mvn2Jr7CKPT_DIm-zhlQjP-dHd9QlmCn68aN9KbcpiXlBdncMleBFxuiN3Zn2VSpJheXsJLQrrUknrPuhQzBv3p-Z5kwnW7wFiEp--L5CvA7QAEv0h68Kh1T7-gamP0&quot;);
+                  "
+                ></div>
+                <div class="flex flex-col justify-center flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <p
+                      class="text-slate-900 dark:text-white text-lg font-bold leading-none"
+                    >
+                      #88
+                    </p>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500"
+                      >2m ago</span
+                    >
+                  </div>
+                  <p
+                    class="text-slate-500 dark:text-slate-400 text-xs truncate mt-1"
+                  >
+                    Silver Tier Winner
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- History Item 2 -->
+            <div class="snap-center shrink-0 w-[240px]">
+              <div
+                class="flex flex-row items-center p-3 rounded-lg bg-white dark:bg-[#1c1f27] border border-slate-200 dark:border-white/5 shadow-sm"
+              >
+                <div
+                  class="size-12 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-lg bg-cover bg-center mr-3"
+                  data-alt="Abstract colorful gradient pattern avatar"
+                  style="
+                    background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuDuRGLW4s6DPr8iSSdweNZdL_Y5bx2g__ivn7-hxx4VJMRx2ZdtcITVyuqfLa7WGJRCBIFa_KXveFXqKyTWzW24EpPE0od-vr0Wp0eTHiwmIQ9ntrjHCUKq2NQ4A1JKaUOx27RWxhIS_ox918DXTfKttK6cQc-7zI2BMLnnU1Ab5dSguJ2NHeMZkvVGsuEbVasMD8Q3_fQWS5lYWAKsrYOgKghmIzPnZM1MYDnJNdZIv69LqG2qoTqn1yPdDQvZ3a7qYxgHKgwX0H0&quot;);
+                  "
+                ></div>
+                <div class="flex flex-col justify-center flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <p
+                      class="text-slate-900 dark:text-white text-lg font-bold leading-none"
+                    >
+                      #12
+                    </p>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500"
+                      >5m ago</span
+                    >
+                  </div>
+                  <p
+                    class="text-slate-500 dark:text-slate-400 text-xs truncate mt-1"
+                  >
+                    Bronze Tier Winner
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- History Item 3 -->
+            <div class="snap-center shrink-0 w-[240px]">
+              <div
+                class="flex flex-row items-center p-3 rounded-lg bg-white dark:bg-[#1c1f27] border border-slate-200 dark:border-white/5 shadow-sm"
+              >
+                <div
+                  class="size-12 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-lg bg-cover bg-center mr-3"
+                  data-alt="Profile avatar of a winner smiling"
+                  style="
+                    background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuCKphP5u7gsC01PpwbSNYCPIKar2p1fQeIYshaKXdeJSev_N7sKS2M_Zdd5AwG1yQct9TlUQ5H88DoBrqKe9AS72Y5EJYIGgWCu4r1c5-kxCLqfI32_BT3w109u_r_5fwHiUmHRjb_Av91ShfFBTAPpu8J6u2aoP2YWFNJRmePVw-yC55KfjsZ7_0Ge1k6wOWRfm8ONIM_EUDAHZMOfAav41tP6xfJfjpsoJtNvHPkz-SYjY7IqJn5E-VRF4bNK6gak5x6avxnBFVA&quot;);
+                  "
+                ></div>
+                <div class="flex flex-col justify-center flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <p
+                      class="text-slate-900 dark:text-white text-lg font-bold leading-none"
+                    >
+                      #05
+                    </p>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500"
+                      >8m ago</span
+                    >
+                  </div>
+                  <p
+                    class="text-slate-500 dark:text-slate-400 text-xs truncate mt-1"
+                  >
+                    Bronze Tier Winner
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- SingleButton (Action Area) -->
+        <div
+          class="p-4 pt-2 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark dark:to-transparent sticky bottom-0 z-40 w-full max-w-md mx-auto"
+        >
+          <button
+            class="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-16 bg-primary text-white gap-3 px-6 shadow-[0_0_20px_rgba(19,91,236,0.4)] hover:shadow-[0_0_30px_rgba(19,91,236,0.6)] hover:bg-blue-600 transition-all active:scale-[0.98]"
+          >
+            <!-- Button glow effect -->
+            <div
+              class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 rounded-xl"
+            ></div>
+            <span
+              class="material-symbols-outlined text-[28px] animate-spin-slow"
+              style="animation-duration: 3s"
+              >cached</span
+            >
+            <span class="text-lg font-bold leading-normal tracking-wider"
+              >DRAW NOW</span
+            >
+          </button>
+          <div class="h-2"></div>
+          <!-- Spacing for safe area -->
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
