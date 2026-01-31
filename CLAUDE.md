@@ -24,21 +24,24 @@ bun lint      # Run ESLint
 - **Supabase** for backend (auth, database)
 - **TypeScript** with strict mode, path alias `@/*` → `./src/*`
 - **Zod + React Hook Form** for form validation
+- **UI Components**: Radix UI primitives, class-variance-authority (CVA), Lucide icons
 
 ### Key Directories
 ```
 src/
 ├── app/                    # Next.js App Router pages
 │   ├── auth/               # Login, signup, password reset
-│   ├── dashboard/          # User dashboard
+│   ├── dashboard/          # User dashboard with achievements
 │   ├── tournaments/        # Tournament CRUD with [id] dynamic routes
-│   └── draw/               # Tournament brackets
+│   └── draw/               # Tournament brackets visualization
+├── components/ui/          # Reusable UI components (Button, Calendar, Popover)
 ├── lib/
-│   ├── actions/            # Server Actions (auth.ts, tournament.ts)
-│   ├── validations/        # Zod schemas (auth.ts, tournament.ts)
+│   ├── actions/            # Server Actions (auth, tournament, match, achievement)
+│   ├── validations/        # Zod schemas
 │   └── supabase/           # Supabase client utilities
 ├── types/                  # TypeScript interfaces (database.ts)
 └── middleware.ts           # Auth protection for routes
+supabase/migrations/        # Database migration files
 ```
 
 ### Server Actions Pattern
@@ -71,9 +74,26 @@ import { createClient } from "@/lib/supabase/client";
 const supabase = createClient();
 ```
 
-### Database Tables
+### Database Schema
+
+Core tables (see `supabase/migrations/` for details):
+- `profiles` - User profiles linked to Supabase Auth
 - `tournaments` - Tournament entities with organizer ownership
-- `profiles` - User profiles with nickname (linked to Supabase Auth)
+- `tournament_participants` - Users registered for tournaments
+- `tournament_teams` - Teams formed within tournaments (supports singles/doubles)
+- `tournament_matches` - Match records with double elimination bracket support
+- `tournament_rankings` - Final standings and points
+- `tournament_achievement_tiers` - Organizer-defined achievement tiers
+- `user_achievements` - Achievements earned by users
+
+### Double Elimination Bracket System
+
+Tournaments use double elimination brackets with three bracket types:
+- `winners` - Winner's bracket
+- `losers` - Loser's bracket
+- `grand_final` - Championship match
+
+Tournament tracks `current_wb_round`, `current_lb_round`, and `bracket_generated` state.
 
 ### Auth Flow
 - Middleware protects `/dashboard`, `/tournaments`, `/draw`
