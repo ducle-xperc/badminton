@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import Link from "next/link";
 import { signInSchema, type SignInInput } from "@/lib/validations/auth";
 import { signIn } from "@/lib/actions/auth";
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
   const urlError = searchParams.get("error");
@@ -199,5 +199,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex items-center justify-center">
+        <div className="animate-pulse text-white">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

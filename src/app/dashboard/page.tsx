@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { HamburgerMenu } from "./hamburger-menu";
 
 export default async function DashboardPage() {
@@ -216,11 +217,11 @@ export default async function DashboardPage() {
             </span>
           </button>
           <div className="relative -top-8">
-            <button className="size-14 rounded-full bg-primary shadow-lg shadow-primary/40 border-4 border-background-dark flex items-center justify-center text-white">
+            <Link href="/tournaments" className="size-14 rounded-full bg-primary shadow-lg shadow-primary/40 border-4 border-background-dark flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-3xl">
                 sports_tennis
               </span>
-            </button>
+            </Link>
           </div>
           <button className="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors">
             <span className="material-symbols-outlined text-2xl">
