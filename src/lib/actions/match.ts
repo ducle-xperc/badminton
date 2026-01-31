@@ -9,6 +9,7 @@ import type {
   TournamentRanking,
   TournamentRankingInsert,
   BracketType,
+  UserAchievementInsert,
 } from "@/types/database";
 
 // ============================================
@@ -642,6 +643,9 @@ export async function endTournament(
     return { error: rankingsError.message };
   }
 
+  // Assign achievements to users based on rankings
+  await assignAchievementsToUsers(supabase, tournamentId, rankings);
+
   // Update tournament status
   await supabase
     .from("tournaments")
@@ -808,4 +812,85 @@ export async function isOrganizer(tournamentId: string): Promise<boolean> {
     .single();
 
   return tournament?.organizer_id === user.id;
+}
+
+// ============================================
+// ACHIEVEMENT ASSIGNMENT
+// ============================================
+
+async function assignAchievementsToUsers(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  tournamentId: string,
+  rankings: TournamentRankingInsert[]
+): Promise<void> {
+  // 1. Get tournament name
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("name")
+    .eq("id", tournamentId)
+    .single();
+
+  if (!tournament) return;
+
+  // 2. Get achievement tiers for this tournament
+  const { data: tiers } = await supabase
+    .from("tournament_achievement_tiers")
+    .select("*")
+    .eq("tournament_id", tournamentId)
+    .order("min_position", { ascending: true });
+
+  if (!tiers || tiers.length === 0) return; // No achievements configured
+
+  // 3. Get participants with their user_ids
+  const { data: participants } = await supabase
+    .from("tournament_participants")
+    .select("user_id, team_number")
+    .eq("tournament_id", tournamentId);
+
+  if (!participants) return;
+
+  // 4. Create team_number -> user_ids mapping
+  const teamToUsers = new Map<number, string[]>();
+  participants.forEach((p) => {
+    if (p.team_number !== null) {
+      const users = teamToUsers.get(p.team_number) || [];
+      users.push(p.user_id);
+      teamToUsers.set(p.team_number, users);
+    }
+  });
+
+  // 5. For each ranking, find matching tier and create achievements
+  const achievements: UserAchievementInsert[] = [];
+
+  for (const ranking of rankings) {
+    const position = ranking.position;
+    const tier = tiers.find(
+      (t) => position >= t.min_position && position <= t.max_position
+    );
+
+    if (!tier) continue; // No tier for this position
+
+    const userIds = teamToUsers.get(ranking.team_number) || [];
+
+    for (const userId of userIds) {
+      achievements.push({
+        user_id: userId,
+        tournament_id: tournamentId,
+        tier_id: tier.id,
+        title: tier.title,
+        color: tier.color,
+        icon: tier.icon,
+        position: position,
+        tournament_name: tournament.name,
+        earned_at: new Date().toISOString(),
+      });
+    }
+  }
+
+  // 6. Insert achievements (upsert to handle duplicates)
+  if (achievements.length > 0) {
+    await supabase
+      .from("user_achievements")
+      .upsert(achievements, { onConflict: "user_id,tournament_id" });
+  }
 }

@@ -2,23 +2,27 @@
 
 import type { TournamentMatch } from "@/types/database";
 import { ScoreEditForm } from "./ScoreEditForm";
+import { getTeamColor } from "../data/mock-data";
 
 interface MatchCardProps {
   match: TournamentMatch;
   canEdit: boolean;
-  getTeamColor: (teamNumber: number | null) => {
-    bg: string;
-    text: string;
-    border: string;
-  };
-  getMatchStatusStyles: (status: string) => string;
+}
+
+function getMatchStatusStyles(status: string): string {
+  switch (status) {
+    case "completed":
+      return "border-green-500/30 bg-green-500/5";
+    case "ongoing":
+      return "border-primary/50 bg-primary/10";
+    default:
+      return "border-white/5 bg-card-dark/50";
+  }
 }
 
 export function MatchCard({
   match,
   canEdit,
-  getTeamColor,
-  getMatchStatusStyles,
 }: MatchCardProps) {
   const team1Colors = getTeamColor(match.team1_number);
   const team2Colors = getTeamColor(match.team2_number);

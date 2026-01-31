@@ -3,8 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Tournament, TournamentStatus } from "@/types/database";
-import type { TournamentInput } from "@/lib/validations/tournament";
+import type { Tournament, TournamentStatus, TournamentAchievementTierInsert } from "@/types/database";
+import type { TournamentInput, AchievementTierInput } from "@/lib/validations/tournament";
 
 export type TournamentResult = {
   error?: string;
@@ -54,7 +54,10 @@ export async function getTournament(id: string): Promise<TournamentResult> {
   return { data: data as Tournament };
 }
 
-export async function createTournament(input: TournamentInput): Promise<TournamentResult> {
+export async function createTournament(
+  input: TournamentInput,
+  achievementTiers?: AchievementTierInput[]
+): Promise<TournamentResult> {
   const supabase = await createClient();
 
   const {
@@ -82,13 +85,37 @@ export async function createTournament(input: TournamentInput): Promise<Tourname
     return { error: error.message };
   }
 
+  // Insert achievement tiers if provided
+  if (achievementTiers && achievementTiers.length > 0) {
+    const tiersToInsert: TournamentAchievementTierInsert[] = achievementTiers.map(
+      (tier, index) => ({
+        tournament_id: data.id,
+        min_position: tier.min_position,
+        max_position: tier.max_position,
+        title: tier.title,
+        color: tier.color,
+        icon: tier.icon || null,
+        display_order: tier.display_order ?? index,
+      })
+    );
+
+    const { error: tiersError } = await supabase
+      .from("tournament_achievement_tiers")
+      .insert(tiersToInsert);
+
+    if (tiersError) {
+      console.error("Error inserting achievement tiers:", tiersError);
+    }
+  }
+
   revalidatePath("/tournaments");
   redirect(`/tournaments/${data.id}`);
 }
 
 export async function updateTournament(
   id: string,
-  input: Partial<TournamentInput>
+  input: Partial<TournamentInput>,
+  achievementTiers?: AchievementTierInput[]
 ): Promise<TournamentResult> {
   const supabase = await createClient();
 
@@ -126,6 +153,38 @@ export async function updateTournament(
 
   if (error) {
     return { error: error.message };
+  }
+
+  // Update achievement tiers if provided
+  if (achievementTiers !== undefined) {
+    // Delete existing tiers
+    await supabase
+      .from("tournament_achievement_tiers")
+      .delete()
+      .eq("tournament_id", id);
+
+    // Insert new tiers if any
+    if (achievementTiers.length > 0) {
+      const tiersToInsert: TournamentAchievementTierInsert[] = achievementTiers.map(
+        (tier, index) => ({
+          tournament_id: id,
+          min_position: tier.min_position,
+          max_position: tier.max_position,
+          title: tier.title,
+          color: tier.color,
+          icon: tier.icon || null,
+          display_order: tier.display_order ?? index,
+        })
+      );
+
+      const { error: tiersError } = await supabase
+        .from("tournament_achievement_tiers")
+        .insert(tiersToInsert);
+
+      if (tiersError) {
+        console.error("Error updating achievement tiers:", tiersError);
+      }
+    }
   }
 
   revalidatePath("/tournaments");
@@ -256,4 +315,25 @@ export async function isOrganizer(tournamentId: string): Promise<boolean> {
     .single();
 
   return tournament?.organizer_id === user.id;
+}
+
+export async function getTournamentAchievementTiers(
+  tournamentId: string
+): Promise<AchievementTierInput[]> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("tournament_achievement_tiers")
+    .select("min_position, max_position, title, color, icon, display_order")
+    .eq("tournament_id", tournamentId)
+    .order("display_order", { ascending: true });
+
+  return (data || []).map((tier) => ({
+    min_position: tier.min_position,
+    max_position: tier.max_position,
+    title: tier.title,
+    color: tier.color,
+    icon: tier.icon || undefined,
+    display_order: tier.display_order,
+  }));
 }

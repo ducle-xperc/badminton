@@ -30,21 +30,9 @@ export function DrawClient({
   const [error, setError] = useState<string | null>(null);
 
   const hasDrawn = drawnNumber !== null;
-  const canDraw = isRegistered && !hasDrawn && availableTeamsCount > 0;
+  const canDraw = !hasDrawn && availableTeamsCount > 0;
 
-  const handleRegister = () => {
-    setError(null);
-    startTransition(async () => {
-      const result = await registerForTournament(tournament.id);
-      if (result.error) {
-        setError(result.error);
-      } else if (result.data) {
-        setIsRegistered(true);
-      }
-    });
-  };
-
-  const handleDraw = () => {
+  const handleRegisterAndDraw = () => {
     setError(null);
     setIsSpinning(true);
 
@@ -63,6 +51,19 @@ export function DrawClient({
         // Final delay before showing result
         setTimeout(() => {
           startTransition(async () => {
+            // Register first if not registered
+            if (!isRegistered) {
+              const regResult = await registerForTournament(tournament.id);
+              if (regResult.error) {
+                setError(regResult.error);
+                setIsSpinning(false);
+                setDisplayNumber("--");
+                return;
+              }
+              setIsRegistered(true);
+            }
+
+            // Then perform draw
             const result = await performDraw(tournament.id);
             setIsSpinning(false);
 
@@ -136,9 +137,7 @@ export function DrawClient({
                   ? "Đang quay..."
                   : hasDrawn
                     ? "Đã rút số"
-                    : isRegistered
-                      ? "Sẵn sàng"
-                      : "Đăng ký"}
+                    : "Sẵn sàng"}
               </span>
             </div>
             <h1 className="text-white tracking-tight text-[32px] font-bold leading-tight">
@@ -147,9 +146,7 @@ export function DrawClient({
             <p className="text-slate-400 text-sm mt-1">
               {hasDrawn
                 ? "Bạn đã được xếp vào team!"
-                : isRegistered
-                  ? "Nhấn để rút số team"
-                  : "Đăng ký để tham gia rút số"}
+                : "Nhấn để rút số team"}
             </p>
           </div>
 
@@ -223,22 +220,9 @@ export function DrawClient({
 
         {/* Action Button */}
         <div className="p-4 pt-2 bg-gradient-to-t from-background-dark via-background-dark to-transparent sticky bottom-0 z-40 w-full">
-          {!isRegistered ? (
+          {canDraw ? (
             <button
-              onClick={handleRegister}
-              disabled={isPending}
-              className="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-16 bg-primary text-white gap-3 px-6 shadow-lg hover:bg-blue-600 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="material-symbols-outlined text-[28px]">
-                person_add
-              </span>
-              <span className="text-lg font-bold tracking-wider">
-                {isPending ? "ĐANG ĐĂNG KÝ..." : "ĐĂNG KÝ NGAY"}
-              </span>
-            </button>
-          ) : canDraw ? (
-            <button
-              onClick={handleDraw}
+              onClick={handleRegisterAndDraw}
               disabled={isPending || isSpinning}
               className="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-16 bg-primary text-white gap-3 px-6 shadow-[0_0_20px_rgba(19,91,236,0.4)] hover:shadow-[0_0_30px_rgba(19,91,236,0.6)] hover:bg-blue-600 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >

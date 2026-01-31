@@ -35,3 +35,26 @@ export const tournamentSchema = baseSchema
   );
 
 export type TournamentInput = z.infer<typeof tournamentSchema>;
+
+// Achievement tier schema for tournament configuration
+export const achievementTierSchema = z.object({
+  min_position: z.coerce.number().min(1, "Vị trí phải >= 1"),
+  max_position: z.coerce.number().min(1, "Vị trí phải >= 1"),
+  title: z.string().min(1, "Tên danh hiệu không được để trống").max(50, "Tên quá dài"),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Màu phải là mã hex hợp lệ"),
+  icon: z.string().optional(),
+  display_order: z.coerce.number().default(0),
+}).refine((data) => data.max_position >= data.min_position, {
+  message: "Vị trí kết thúc phải >= vị trí bắt đầu",
+  path: ["max_position"],
+});
+
+export type AchievementTierInput = z.infer<typeof achievementTierSchema>;
+
+// Default achievement tiers
+export const DEFAULT_ACHIEVEMENT_TIERS: AchievementTierInput[] = [
+  { min_position: 1, max_position: 1, title: "Nhà Vô Địch", color: "#FFD700", icon: "emoji_events", display_order: 1 },
+  { min_position: 2, max_position: 2, title: "Á Quân", color: "#C0C0C0", icon: "workspace_premium", display_order: 2 },
+  { min_position: 3, max_position: 3, title: "Hạng Ba", color: "#CD7F32", icon: "military_tech", display_order: 3 },
+  { min_position: 4, max_position: 8, title: "Top 8", color: "#4A90D9", icon: "star", display_order: 4 },
+];

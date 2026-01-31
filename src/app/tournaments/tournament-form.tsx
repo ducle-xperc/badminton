@@ -3,24 +3,32 @@
 import { useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { tournamentSchema, type TournamentInput } from "@/lib/validations/tournament";
+import { tournamentSchema, type TournamentInput, type AchievementTierInput } from "@/lib/validations/tournament";
 import { createTournament, updateTournament } from "@/lib/actions/tournament";
 import type { Tournament } from "@/types/database";
+import { AchievementTiersSection } from "./components/AchievementTiersSection";
+import { DatePicker } from "@/components/ui/date-picker";
+
+type TournamentFormData = TournamentInput & {
+  achievement_tiers?: AchievementTierInput[];
+};
 
 interface TournamentFormProps {
   tournament?: Tournament;
   mode: "create" | "edit";
+  existingTiers?: AchievementTierInput[];
 }
 
-export function TournamentForm({ tournament, mode }: TournamentFormProps) {
+export function TournamentForm({ tournament, mode, existingTiers }: TournamentFormProps) {
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
-  } = useForm<TournamentInput>({
-    resolver: zodResolver(tournamentSchema) as Resolver<TournamentInput>,
+  } = useForm<TournamentFormData>({
+    resolver: zodResolver(tournamentSchema) as Resolver<TournamentFormData>,
     defaultValues: tournament
       ? {
           name: tournament.name,
@@ -35,22 +43,25 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
           prize_pool: tournament.prize_pool || "",
           banner_url: tournament.banner_url || "",
           categories: tournament.categories,
+          achievement_tiers: existingTiers || [],
         }
       : {
           max_participants: 32,
           team_size: 2,
           entry_fee: 0,
           categories: [],
+          achievement_tiers: [],
         },
   });
 
-  const onSubmit = async (data: TournamentInput) => {
+  const onSubmit = async (data: TournamentFormData) => {
     setServerError(null);
+    const { achievement_tiers, ...tournamentData } = data;
 
     const result =
       mode === "create"
-        ? await createTournament(data)
-        : await updateTournament(tournament!.id, data);
+        ? await createTournament(tournamentData, achievement_tiers)
+        : await updateTournament(tournament!.id, tournamentData, achievement_tiers);
 
     if (result?.error) {
       setServerError(result.error);
@@ -73,16 +84,18 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         >
           Tournament Name *
         </label>
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+        <div
+          className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+            errors.name
+              ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+              : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-gray-500 text-xl">
             emoji_events
           </span>
           <input
-            className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-              errors.name
-                ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-            }`}
+            className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
             id="name"
             placeholder="Enter tournament name"
             type="text"
@@ -128,15 +141,11 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
           >
             Start Date *
           </label>
-          <input
-            className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${
-              errors.start_date
-                ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-            }`}
-            id="start_date"
-            type="date"
-            {...register("start_date")}
+          <DatePicker
+            name="start_date"
+            control={control}
+            placeholder="Chọn ngày bắt đầu"
+            error={!!errors.start_date}
           />
           {errors.start_date && (
             <p className="text-red-400 text-xs ml-1">{errors.start_date.message}</p>
@@ -151,15 +160,11 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
           >
             End Date *
           </label>
-          <input
-            className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${
-              errors.end_date
-                ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-            }`}
-            id="end_date"
-            type="date"
-            {...register("end_date")}
+          <DatePicker
+            name="end_date"
+            control={control}
+            placeholder="Chọn ngày kết thúc"
+            error={!!errors.end_date}
           />
           {errors.end_date && (
             <p className="text-red-400 text-xs ml-1">{errors.end_date.message}</p>
@@ -175,15 +180,11 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         >
           Registration Deadline
         </label>
-        <input
-          className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${
-            errors.registration_deadline
-              ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-              : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-          }`}
-          id="registration_deadline"
-          type="date"
-          {...register("registration_deadline")}
+        <DatePicker
+          name="registration_deadline"
+          control={control}
+          placeholder="Chọn hạn đăng ký"
+          error={!!errors.registration_deadline}
         />
         {errors.registration_deadline && (
           <p className="text-red-400 text-xs ml-1">{errors.registration_deadline.message}</p>
@@ -198,16 +199,18 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         >
           Location *
         </label>
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+        <div
+          className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+            errors.location
+              ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+              : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-gray-500 text-xl">
             location_on
           </span>
           <input
-            className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-              errors.location
-                ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-            }`}
+            className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
             id="location"
             placeholder="Enter venue location"
             type="text"
@@ -305,16 +308,18 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         >
           Prize Pool
         </label>
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+        <div
+          className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+            errors.prize_pool
+              ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+              : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-gray-500 text-xl">
             payments
           </span>
           <input
-            className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-              errors.prize_pool
-                ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-            }`}
+            className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
             id="prize_pool"
             placeholder="e.g., 10,000,000 VND"
             type="text"
@@ -334,16 +339,18 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         >
           Banner Image URL
         </label>
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+        <div
+          className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+            errors.banner_url
+              ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+              : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-gray-500 text-xl">
             image
           </span>
           <input
-            className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-              errors.banner_url
-                ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-            }`}
+            className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
             id="banner_url"
             placeholder="https://example.com/image.jpg"
             type="url"
@@ -353,6 +360,11 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         {errors.banner_url && (
           <p className="text-red-400 text-xs ml-1">{errors.banner_url.message}</p>
         )}
+      </div>
+
+      {/* Achievement Tiers */}
+      <div className="pt-4 border-t border-white/10">
+        <AchievementTiersSection control={control} register={register} />
       </div>
 
       {/* Submit Button */}

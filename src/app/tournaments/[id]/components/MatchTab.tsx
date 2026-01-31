@@ -1,6 +1,5 @@
 import { getTournamentMatches, isOrganizer } from "@/lib/actions/match";
 import { getTournament } from "@/lib/actions/tournament";
-import { getTeamColor } from "../data/mock-data";
 import type { TournamentMatch, BracketType } from "@/types/database";
 import { GenerateMatchesButton } from "./GenerateMatchesButton";
 import { EndTournamentButton } from "./EndTournamentButton";
@@ -53,17 +52,6 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
 
   // Show generate next round button when all current matches are completed but not at end
   const canGenerateNext = canManage && allMatchesCompleted && !grandFinalCompleted;
-
-  const getMatchStatusStyles = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "border-green-500/30 bg-green-500/5";
-      case "ongoing":
-        return "border-primary/50 bg-primary/10";
-      default:
-        return "border-white/5 bg-card-dark/50";
-    }
-  };
 
   return (
     <div className="px-6 pb-8">
@@ -176,8 +164,6 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
                           key={match.id}
                           match={match}
                           canEdit={canManage && match.status !== "completed"}
-                          getTeamColor={getTeamColor}
-                          getMatchStatusStyles={getMatchStatusStyles}
                         />
                       ))}
                     </div>

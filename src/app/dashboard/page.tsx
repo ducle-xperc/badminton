@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { HamburgerMenu } from "./hamburger-menu";
+import { getUserAchievements, getUserAchievementStats } from "@/lib/actions/achievement";
+import { AchievementCard } from "./achievement-card";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -15,6 +17,10 @@ export default async function DashboardPage() {
 
   const nickname = user.user_metadata?.nickname || user.email?.split("@")[0] || "Player";
   const email = user.email || "";
+
+  // Fetch achievements
+  const { data: achievements } = await getUserAchievements();
+  const stats = await getUserAchievementStats();
 
   return (
     <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col px-6 py-8">
@@ -66,9 +72,9 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <div className="relative z-10 grid grid-cols-3 gap-3 mb-8">
         <div className="bg-card-dark/50 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col items-center text-center">
-          <span className="text-2xl font-bold text-white mb-1">42</span>
+          <span className="text-2xl font-bold text-white mb-1">{stats.totalAchievements}</span>
           <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
-            Matches
+            Thành tích
           </span>
         </div>
         <div className="bg-gradient-to-b from-navy-deep to-card-dark border border-gold-accent/20 rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
@@ -77,14 +83,14 @@ export default async function DashboardPage() {
             emoji_events
           </span>
           <span className="text-2xl font-bold text-gold-accent mb-0 leading-none">
-            5
+            {stats.championshipCount}
           </span>
           <span className="text-[10px] uppercase tracking-wider text-gold-accent/80 font-semibold mt-1">
-            Titles
+            Vô địch
           </span>
         </div>
         <div className="bg-card-dark/50 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col items-center text-center">
-          <span className="text-2xl font-bold text-primary mb-1">#12</span>
+          <span className="text-2xl font-bold text-primary mb-1">-</span>
           <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
             Rank
           </span>
@@ -95,46 +101,30 @@ export default async function DashboardPage() {
       <div className="relative z-10 mb-8">
         <div className="flex items-center justify-between mb-4 px-1">
           <h3 className="text-sm font-bold uppercase tracking-wider text-white">
-            Recent Achievements
+            Thành tích gần đây
           </h3>
-          <button className="text-primary text-xs font-semibold hover:text-blue-400">
-            View All
-          </button>
+          {achievements && achievements.length > 5 && (
+            <button className="text-primary text-xs font-semibold hover:text-blue-400">
+              Xem tất cả
+            </button>
+          )}
         </div>
         <div className="flex gap-3 overflow-x-auto hide-scroll pb-2 -mx-6 px-6">
-          <div className="min-w-[140px] bg-card-dark rounded-xl p-3 border border-white/5 flex flex-col items-center text-center group">
-            <div className="w-10 h-10 rounded-full bg-gold-accent/10 flex items-center justify-center mb-3 group-hover:bg-gold-accent/20 transition-colors">
-              <span className="material-symbols-outlined text-gold-accent text-xl">
-                workspace_premium
+          {achievements && achievements.length > 0 ? (
+            achievements.slice(0, 5).map((achievement) => (
+              <AchievementCard key={achievement.id} achievement={achievement} />
+            ))
+          ) : (
+            <div className="w-full text-center py-8">
+              <span className="material-symbols-outlined text-4xl text-gray-600 mb-2">
+                emoji_events
               </span>
+              <p className="text-sm text-gray-500">Chưa có thành tích nào</p>
+              <p className="text-xs text-gray-600 mt-1">
+                Tham gia giải đấu để nhận danh hiệu
+              </p>
             </div>
-            <span className="text-xs font-bold text-white mb-1">MVP Player</span>
-            <span className="text-[10px] text-gray-500">
-              Regional Finals 2023
-            </span>
-          </div>
-          <div className="min-w-[140px] bg-card-dark rounded-xl p-3 border border-white/5 flex flex-col items-center text-center group">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-              <span className="material-symbols-outlined text-primary text-xl">
-                bolt
-              </span>
-            </div>
-            <span className="text-xs font-bold text-white mb-1">
-              Fastest Smash
-            </span>
-            <span className="text-[10px] text-gray-500">386 km/h Record</span>
-          </div>
-          <div className="min-w-[140px] bg-card-dark rounded-xl p-3 border border-white/5 flex flex-col items-center text-center group">
-            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center mb-3 group-hover:bg-green-500/20 transition-colors">
-              <span className="material-symbols-outlined text-green-500 text-xl">
-                trending_up
-              </span>
-            </div>
-            <span className="text-xs font-bold text-white mb-1">
-              Top 20 Break
-            </span>
-            <span className="text-[10px] text-gray-500">October 2023</span>
-          </div>
+          )}
         </div>
       </div>
 

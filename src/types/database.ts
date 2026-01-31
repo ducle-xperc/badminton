@@ -120,3 +120,38 @@ export type TournamentRankingInsert = Omit<
   TournamentRanking,
   "id" | "created_at" | "members"
 >;
+
+// Achievement tier configuration (set by organizer when creating tournament)
+export interface TournamentAchievementTier {
+  id: string;
+  created_at: string;
+  tournament_id: string;
+  min_position: number;
+  max_position: number;
+  title: string;
+  color: string;
+  icon: string | null;
+  display_order: number;
+}
+
+export type TournamentAchievementTierInsert = Omit<
+  TournamentAchievementTier,
+  "id" | "created_at"
+>;
+
+// User earned achievement
+export interface UserAchievement {
+  id: string;
+  created_at: string;
+  user_id: string;
+  tournament_id: string;
+  tier_id: string | null;
+  title: string;
+  color: string;
+  icon: string | null;
+  position: number;
+  tournament_name: string;
+  earned_at: string;
+}
+
+export type UserAchievementInsert = Omit<UserAchievement, "id" | "created_at">;
