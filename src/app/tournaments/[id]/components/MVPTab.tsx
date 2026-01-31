@@ -56,7 +56,7 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
   return (
     <div className="px-6 pb-8">
       {/* Podium for top 3 */}
-      <div className="flex items-end justify-center gap-3 mb-8 h-52">
+      <div className="flex items-end justify-center gap-3 mb-8 h-52 mt-8">
         {/* 2nd Place */}
         {rankings[1] && (
           <div className="flex flex-col items-center">

@@ -18,6 +18,7 @@ export interface Tournament {
   status: TournamentStatus;
   organizer_id: string | null;
   categories: string[];
+  team_size: number; // 1 for singles, 2 for doubles
 }
 
 export type TournamentInsert = Omit<
@@ -30,22 +31,27 @@ export type TournamentUpdate = Partial<TournamentInsert>;
 // Participant registered for a tournament
 export interface TournamentParticipant {
   id: string;
-  user_id: string;
+  created_at: string;
   tournament_id: string;
-  team_number: number; // 1, 2, 3, 4... Users with same number are on same team
-  registered_at: string;
-  user: {
+  user_id: string;
+  team_id: string | null;
+  team_number: number | null;
+  profile?: {
     id: string;
-    name: string;
-    avatar_url: string | null;
+    nickname: string;
     email: string;
   };
 }
 
-// Team derived from participants with same team_number
+// Team in a tournament
 export interface TournamentTeam {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  tournament_id: string;
   team_number: number;
-  members: TournamentParticipant[];
+  is_full: boolean;
+  members?: TournamentParticipant[];
 }
 
 // Match between teams

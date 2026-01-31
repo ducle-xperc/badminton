@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { signOut } from "@/lib/actions/auth";
 
 export function HamburgerMenu() {
@@ -36,12 +37,21 @@ export function HamburgerMenu() {
 
       {isOpen && (
         <div className="absolute top-full left-0 mt-2 w-48 bg-card-dark border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+          <Link
+            href="/profile"
+            onClick={() => setIsOpen(false)}
+            className="w-full px-4 py-3 flex items-center gap-3 text-gray-300 hover:bg-white/5 transition-colors"
+          >
+            <span className="material-symbols-outlined text-lg">person</span>
+            <span className="text-sm font-medium">Hồ sơ</span>
+          </Link>
+          <div className="border-t border-white/5"></div>
           <button
             onClick={() => signOut()}
             className="w-full px-4 py-3 flex items-center gap-3 text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <span className="material-symbols-outlined text-lg">logout</span>
-            <span className="text-sm font-medium">Sign Out</span>
+            <span className="text-sm font-medium">Đăng xuất</span>
           </button>
         </div>
       )}

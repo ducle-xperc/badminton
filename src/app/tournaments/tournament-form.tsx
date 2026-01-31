@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { tournamentSchema, type TournamentInput } from "@/lib/validations/tournament";
 import { createTournament, updateTournament } from "@/lib/actions/tournament";
@@ -20,7 +20,7 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<TournamentInput>({
-    resolver: zodResolver(tournamentSchema),
+    resolver: zodResolver(tournamentSchema) as Resolver<TournamentInput>,
     defaultValues: tournament
       ? {
           name: tournament.name,
@@ -30,6 +30,7 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
           registration_deadline: tournament.registration_deadline || "",
           location: tournament.location,
           max_participants: tournament.max_participants,
+          team_size: tournament.team_size || 2,
           entry_fee: tournament.entry_fee,
           prize_pool: tournament.prize_pool || "",
           banner_url: tournament.banner_url || "",
@@ -37,6 +38,7 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         }
       : {
           max_participants: 32,
+          team_size: 2,
           entry_fee: 0,
           categories: [],
         },
@@ -217,15 +219,15 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
         )}
       </div>
 
-      {/* Participants & Entry Fee Row */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Participants, Team Size & Entry Fee Row */}
+      <div className="grid grid-cols-3 gap-4">
         {/* Max Participants */}
         <div className="space-y-2">
           <label
             className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
             htmlFor="max_participants"
           >
-            Max Participants
+            Số người
           </label>
           <input
             className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${
@@ -244,13 +246,38 @@ export function TournamentForm({ tournament, mode }: TournamentFormProps) {
           )}
         </div>
 
+        {/* Team Size */}
+        <div className="space-y-2">
+          <label
+            className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
+            htmlFor="team_size"
+          >
+            Loại
+          </label>
+          <select
+            className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm appearance-none cursor-pointer ${
+              errors.team_size
+                ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
+                : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
+            }`}
+            id="team_size"
+            {...register("team_size")}
+          >
+            <option value={1}>Đơn</option>
+            <option value={2}>Đôi</option>
+          </select>
+          {errors.team_size && (
+            <p className="text-red-400 text-xs ml-1">{errors.team_size.message}</p>
+          )}
+        </div>
+
         {/* Entry Fee */}
         <div className="space-y-2">
           <label
             className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
             htmlFor="entry_fee"
           >
-            Entry Fee (VND)
+            Phí (VND)
           </label>
           <input
             className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${

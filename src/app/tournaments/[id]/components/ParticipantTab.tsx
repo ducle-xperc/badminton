@@ -1,32 +1,47 @@
-"use client";
-
-import { mockParticipants, getTeamColor } from "../data/mock-data";
+import { getTournamentParticipants } from "@/lib/actions/draw";
+import { getTeamColor } from "../data/mock-data";
 
 interface ParticipantTabProps {
   tournamentId: string;
 }
 
-export function ParticipantTab({ tournamentId }: ParticipantTabProps) {
-  // In future: fetch from API using tournamentId
-  const participants = mockParticipants;
+export async function ParticipantTab({ tournamentId }: ParticipantTabProps) {
+  const { data: participants, error } = await getTournamentParticipants(tournamentId);
+
+  if (error) {
+    return (
+      <div className="px-6 pb-8">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
+          <p className="text-red-400">Không thể tải danh sách: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const participantList = participants || [];
 
   return (
     <div className="px-6 pb-8 space-y-3">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-white">Participants</h2>
-        <span className="text-sm text-gray-400">{participants.length} registered</span>
+        <span className="text-sm text-gray-400">{participantList.length} registered</span>
       </div>
 
-      {participants.length === 0 ? (
+      {participantList.length === 0 ? (
         <div className="bg-card-dark/50 border border-white/5 rounded-xl p-8 text-center">
           <span className="material-symbols-outlined text-4xl text-gray-500 mb-2">
             person_off
           </span>
-          <p className="text-gray-400">No participants yet</p>
+          <p className="text-gray-400">Chưa có người đăng ký</p>
         </div>
       ) : (
-        participants.map((participant) => {
-          const colors = getTeamColor(participant.team_number);
+        participantList.map((participant) => {
+          const hasTeam = participant.team_number !== null;
+          const colors = hasTeam
+            ? getTeamColor(participant.team_number)
+            : { bg: "bg-gray-500/20", text: "text-gray-400", border: "border-gray-500/30" };
+          const displayName = participant.profile?.nickname || participant.profile?.email || "Unknown";
+
           return (
             <div
               key={participant.id}
@@ -34,27 +49,19 @@ export function ParticipantTab({ tournamentId }: ParticipantTabProps) {
             >
               {/* Avatar */}
               <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                {participant.user.avatar_url ? (
-                  <img
-                    src={participant.user.avatar_url}
-                    alt={participant.user.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="material-symbols-outlined text-primary">person</span>
-                )}
+                <span className="material-symbols-outlined text-primary">person</span>
               </div>
 
               {/* Name */}
               <div className="flex-1 min-w-0">
-                <p className="text-white font-medium truncate">{participant.user.name}</p>
-                <p className="text-xs text-gray-500 truncate">{participant.user.email}</p>
+                <p className="text-white font-medium truncate">{displayName}</p>
+                <p className="text-xs text-gray-500 truncate">{participant.profile?.email}</p>
               </div>
 
               {/* Team Badge */}
               <div className={`px-3 py-1.5 rounded-full ${colors.bg} border ${colors.border} flex-shrink-0`}>
                 <span className={`${colors.text} text-sm font-bold`}>
-                  Team {participant.team_number}
+                  {hasTeam ? `Team ${participant.team_number}` : "Chưa có team"}
                 </span>
               </div>
             </div>

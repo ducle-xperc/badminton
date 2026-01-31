@@ -1,12 +1,15 @@
 import Link from "next/link";
 import type { Tournament } from "@/types/database";
 import { DeleteTournamentButton } from "../delete-button";
+import { RegistrationButton } from "./RegistrationButton";
 
 interface InfoTabProps {
   tournament: Tournament;
+  isRegistered: boolean;
+  teamNumber: number | null;
 }
 
-export function InfoTab({ tournament }: InfoTabProps) {
+export function InfoTab({ tournament, isRegistered, teamNumber }: InfoTabProps) {
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("vi-VN", {
       year: "numeric",
@@ -112,12 +115,12 @@ export function InfoTab({ tournament }: InfoTabProps) {
 
       {/* Action Buttons */}
       <div className="mt-6 space-y-3">
-        {tournament.status === "upcoming" && (
-          <button className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20">
-            <span className="material-symbols-outlined">how_to_reg</span>
-            Register Now
-          </button>
-        )}
+        <RegistrationButton
+          tournamentId={tournament.id}
+          isRegistered={isRegistered}
+          teamNumber={teamNumber}
+          tournamentStatus={tournament.status}
+        />
 
         <div className="flex gap-3">
           <Link

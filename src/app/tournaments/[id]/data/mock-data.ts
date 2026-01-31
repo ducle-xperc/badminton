@@ -1,9 +1,27 @@
 import type {
-  TournamentParticipant,
   TournamentMatch,
   TournamentRanking,
-  TournamentTeam,
 } from "@/types/database";
+
+// Local mock types for display (not tied to database structure)
+export interface MockParticipant {
+  id: string;
+  user_id: string;
+  tournament_id: string;
+  team_number: number;
+  registered_at: string;
+  user: {
+    id: string;
+    name: string;
+    avatar_url: string | null;
+    email: string;
+  };
+}
+
+export interface MockTeam {
+  team_number: number;
+  members: MockParticipant[];
+}
 
 // 50 distinct team colors - each has bg (background with opacity), text, and border colors
 export const TEAM_COLORS: { bg: string; text: string; border: string }[] = [
@@ -68,7 +86,7 @@ export function getTeamColor(teamNumber: number | null): { bg: string; text: str
   return TEAM_COLORS[index];
 }
 
-export const mockParticipants: TournamentParticipant[] = [
+export const mockParticipants: MockParticipant[] = [
   // Team 1
   {
     id: "p1",
@@ -262,9 +280,9 @@ export const mockRankings: TournamentRanking[] = [
 ];
 
 export function groupParticipantsByTeam(
-  participants: TournamentParticipant[]
-): TournamentTeam[] {
-  const teamMap = new Map<number, TournamentParticipant[]>();
+  participants: MockParticipant[]
+): MockTeam[] {
+  const teamMap = new Map<number, MockParticipant[]>();
 
   participants.forEach((p) => {
     const existing = teamMap.get(p.team_number) || [];
