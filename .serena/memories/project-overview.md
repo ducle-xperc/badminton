@@ -1,13 +1,14 @@
-# CLAUDE.md
+# XPERC Badminton Vietnam Arena
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Overview
-
-XPERC Badminton Vietnam Arena - Tournament web application built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, and Supabase. Uses Bun as package manager.
+## Tech Stack
+- **Next.js 16** with App Router (React Server Components by default)
+- **React 19** with Lexend font family
+- **Tailwind CSS v4** using `@import "tailwindcss"` syntax
+- **Supabase** for backend (auth, database, realtime)
+- **TypeScript** with strict mode
+- **Bun** as package manager
 
 ## Commands
-
 ```bash
 bun dev       # Start dev server (http://localhost:3000)
 bun build     # Build for production
@@ -15,16 +16,7 @@ bun start     # Start production server
 bun lint      # Run ESLint
 ```
 
-## Architecture
-
-### Tech Stack
-- **Next.js 16** with App Router (React Server Components by default)
-- **React 19** with Lexend font family
-- **Tailwind CSS v4** using `@import "tailwindcss"` syntax
-- **Supabase** for backend (auth, database, realtime)
-- **TypeScript** with strict mode, path alias `@/*` → `./src/*`
-
-### Key Directories
+## Project Structure
 ```
 src/
 ├── app/                    # Next.js App Router pages
@@ -42,7 +34,13 @@ src/
 └── proxy.ts                # Next.js proxy (replaces middleware in v16)
 ```
 
-### Supabase Usage
+## Supabase Setup
+
+### Environment Variables (.env.local)
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon/public key
+
+### Usage
 
 **Server Components:**
 ```typescript
@@ -57,7 +55,8 @@ import { createClient } from "@/lib/supabase/client";
 const supabase = createClient();
 ```
 
-### Important Notes
+## Important Notes
 - Next.js 16 uses `proxy.ts` instead of `middleware.ts` (renamed convention)
 - Dark mode is enabled by default (`<html className="dark">`)
 - Material Symbols Outlined icons loaded via Google Fonts
+- Path alias: `@/*` → `./src/*`

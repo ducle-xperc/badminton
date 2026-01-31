@@ -1,4 +1,20 @@
-export default function DashboardPage() {
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { HamburgerMenu } from "./hamburger-menu";
+
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const nickname = user.user_metadata?.nickname || user.email?.split("@")[0] || "Player";
+  const email = user.email || "";
+
   return (
     <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col px-6 py-8">
       {/* Background Decorations */}
@@ -15,14 +31,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between mb-8">
-        <div className="flex items-center gap-2">
-          <div className="size-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-sm font-bold">
-              menu
-            </span>
-          </div>
-        </div>
+      <div className="relative z-50 flex items-center justify-between mb-8">
+        <HamburgerMenu />
         <div className="flex items-center gap-4">
           <div className="size-8 rounded-lg bg-navy-deep/50 border border-white/10 flex items-center justify-center text-white relative">
             <span className="material-symbols-outlined text-sm">
@@ -43,18 +53,12 @@ export default function DashboardPage() {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh_UvfV3t4T7nVgW1i337iKMut7MmTAg-YPnLTAJDdWqcRY1_XMoQLOH_BoSWtr31cX_CHM_ZdHyM5T2fXtkAPPGLZvSPCRk0H8BHn4xxHwWb5ghWc7MZiwteGdPCKxJ9Q1-0fuFuzEexkKbYhIt9VaqaZjw1DrubACsyfd07oXOJ8pSyHhg0hxu9c3cL6mcqjdRxpFMXIff2Do1KoZDPQapJSzUTkNK9aJyRGQgi9Xix7HIE4rKmIML-_tdr4MtSExmbRMZAtMkA"
             />
           </div>
-          <div className="absolute -bottom-2 -right-2 bg-gold-accent text-navy-deep text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-background-dark flex items-center gap-0.5">
-            <span className="material-symbols-outlined text-[10px]">
-              verified
-            </span>
-            PRO
-          </div>
-        </div>
+  </div>
         <h1 className="text-2xl font-bold tracking-tight text-white mb-0.5">
-          Alex &quot;Ace&quot; Chen
+          {nickname}
         </h1>
         <p className="text-gray-400 text-sm font-medium">
-          Badminton Professional
+          {email}
         </p>
       </div>
 

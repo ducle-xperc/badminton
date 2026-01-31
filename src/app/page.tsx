@@ -81,7 +81,7 @@ export default function Home() {
 
               {/* CTA Button */}
               <Link
-                href="/login"
+                href="/auth/login"
                 className="w-full bg-primary hover:bg-primary/90 text-white font-extrabold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/30 text-lg uppercase tracking-wide cursor-pointer"
               >
                 JOIN NOW
