@@ -1,6 +1,6 @@
 "use client";
 
-import { mockMatches, getTeamLetter } from "../data/mock-data";
+import { mockMatches, getTeamColor } from "../data/mock-data";
 import type { TournamentMatch, MatchRound } from "@/types/database";
 
 interface MatchTabProps {
@@ -72,89 +72,94 @@ export function MatchTab({ tournamentId }: MatchTabProps) {
 
               {/* Matches */}
               <div className="space-y-3">
-                {matches.map((match) => (
-                  <div
-                    key={match.id}
-                    className={`rounded-xl border p-4 ${getMatchStatusStyles(match.status)}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      {/* Team 1 */}
-                      <div className="flex-1 text-center">
-                        <div className="size-12 mx-auto mb-2 rounded-full bg-primary/20 flex items-center justify-center">
-                          <span className="text-primary font-bold text-xl">
-                            {getTeamLetter(match.team1_number)}
-                          </span>
-                        </div>
-                        <p className="text-white font-medium text-sm">
-                          Team {getTeamLetter(match.team1_number)}
-                        </p>
-                        {match.team1_score !== null && (
-                          <p
-                            className={`text-2xl font-bold mt-1 ${
-                              match.winner_team_number === match.team1_number
-                                ? "text-green-500"
-                                : "text-gray-400"
-                            }`}
-                          >
-                            {match.team1_score}
-                          </p>
-                        )}
-                      </div>
+                {matches.map((match) => {
+                  const team1Colors = getTeamColor(match.team1_number);
+                  const team2Colors = getTeamColor(match.team2_number);
 
-                      {/* VS Divider */}
-                      <div className="px-4">
-                        <span className="text-gray-500 font-bold text-sm">VS</span>
-                      </div>
-
-                      {/* Team 2 */}
-                      <div className="flex-1 text-center">
-                        <div className="size-12 mx-auto mb-2 rounded-full bg-gold-accent/20 flex items-center justify-center">
-                          <span className="text-gold-accent font-bold text-xl">
-                            {getTeamLetter(match.team2_number)}
-                          </span>
-                        </div>
-                        <p className="text-white font-medium text-sm">
-                          Team {getTeamLetter(match.team2_number)}
-                        </p>
-                        {match.team2_score !== null && (
-                          <p
-                            className={`text-2xl font-bold mt-1 ${
-                              match.winner_team_number === match.team2_number
-                                ? "text-green-500"
-                                : "text-gray-400"
-                            }`}
-                          >
-                            {match.team2_score}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Match Info Footer */}
-                    {(match.scheduled_at || match.court) && (
-                      <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-500">
-                        {match.court && (
-                          <span className="flex items-center gap-1">
-                            <span className="material-symbols-outlined text-sm">
-                              location_on
+                  return (
+                    <div
+                      key={match.id}
+                      className={`rounded-xl border p-4 ${getMatchStatusStyles(match.status)}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        {/* Team 1 */}
+                        <div className="flex-1 text-center">
+                          <div className={`size-12 mx-auto mb-2 rounded-full ${team1Colors.bg} border ${team1Colors.border} flex items-center justify-center`}>
+                            <span className={`${team1Colors.text} font-bold text-xl`}>
+                              {match.team1_number ?? "?"}
                             </span>
-                            {match.court}
-                          </span>
-                        )}
-                        {match.scheduled_at && (
-                          <span>
-                            {new Date(match.scheduled_at).toLocaleString("vi-VN", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        )}
+                          </div>
+                          <p className="text-white font-medium text-sm">
+                            Team {match.team1_number ?? "TBD"}
+                          </p>
+                          {match.team1_score !== null && (
+                            <p
+                              className={`text-2xl font-bold mt-1 ${
+                                match.winner_team_number === match.team1_number
+                                  ? "text-green-500"
+                                  : "text-gray-400"
+                              }`}
+                            >
+                              {match.team1_score}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* VS Divider */}
+                        <div className="px-4">
+                          <span className="text-gray-500 font-bold text-sm">VS</span>
+                        </div>
+
+                        {/* Team 2 */}
+                        <div className="flex-1 text-center">
+                          <div className={`size-12 mx-auto mb-2 rounded-full ${team2Colors.bg} border ${team2Colors.border} flex items-center justify-center`}>
+                            <span className={`${team2Colors.text} font-bold text-xl`}>
+                              {match.team2_number ?? "?"}
+                            </span>
+                          </div>
+                          <p className="text-white font-medium text-sm">
+                            Team {match.team2_number ?? "TBD"}
+                          </p>
+                          {match.team2_score !== null && (
+                            <p
+                              className={`text-2xl font-bold mt-1 ${
+                                match.winner_team_number === match.team2_number
+                                  ? "text-green-500"
+                                  : "text-gray-400"
+                              }`}
+                            >
+                              {match.team2_score}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {/* Match Info Footer */}
+                      {(match.scheduled_at || match.court) && (
+                        <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-500">
+                          {match.court && (
+                            <span className="flex items-center gap-1">
+                              <span className="material-symbols-outlined text-sm">
+                                location_on
+                              </span>
+                              {match.court}
+                            </span>
+                          )}
+                          {match.scheduled_at && (
+                            <span>
+                              {new Date(match.scheduled_at).toLocaleString("vi-VN", {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

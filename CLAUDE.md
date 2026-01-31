@@ -21,30 +21,44 @@ bun lint      # Run ESLint
 - **Next.js 16** with App Router (React Server Components by default)
 - **React 19** with Lexend font family
 - **Tailwind CSS v4** using `@import "tailwindcss"` syntax
-- **Supabase** for backend (auth, database, realtime)
+- **Supabase** for backend (auth, database)
 - **TypeScript** with strict mode, path alias `@/*` → `./src/*`
+- **Zod + React Hook Form** for form validation
 
 ### Key Directories
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── layout.tsx          # Root layout (dark mode default)
-│   ├── page.tsx            # Home page
-│   ├── login/              # Authentication
+│   ├── auth/               # Login, signup, password reset
 │   ├── dashboard/          # User dashboard
-│   ├── tournaments/        # Tournament listing
+│   ├── tournaments/        # Tournament CRUD with [id] dynamic routes
 │   └── draw/               # Tournament brackets
 ├── lib/
+│   ├── actions/            # Server Actions (auth.ts, tournament.ts)
+│   ├── validations/        # Zod schemas (auth.ts, tournament.ts)
 │   └── supabase/           # Supabase client utilities
-│       ├── client.ts       # Browser client (Client Components)
-│       ├── server.ts       # Server client (Server Components)
-│       └── proxy.ts        # Session refresh helper
-└── proxy.ts                # Next.js proxy (replaces middleware in v16)
+├── types/                  # TypeScript interfaces (database.ts)
+└── middleware.ts           # Auth protection for routes
+```
+
+### Server Actions Pattern
+
+All mutations use Server Actions in `lib/actions/`. Pattern:
+```typescript
+"use server";
+import { createClient } from "@/lib/supabase/server";
+
+export async function createTournament(input: TournamentInput): Promise<TournamentResult> {
+  const supabase = await createClient();
+  // ... mutation logic
+  revalidatePath("/tournaments");
+  redirect(`/tournaments/${data.id}`);
+}
 ```
 
 ### Supabase Usage
 
-**Server Components:**
+**Server Components / Server Actions:**
 ```typescript
 import { createClient } from "@/lib/supabase/server";
 const supabase = await createClient();
@@ -57,7 +71,11 @@ import { createClient } from "@/lib/supabase/client";
 const supabase = createClient();
 ```
 
-### Important Notes
-- Next.js 16 uses `proxy.ts` instead of `middleware.ts` (renamed convention)
-- Dark mode is enabled by default (`<html className="dark">`)
-- Material Symbols Outlined icons loaded via Google Fonts
+### Database Tables
+- `tournaments` - Tournament entities with organizer ownership
+- `profiles` - User profiles with nickname (linked to Supabase Auth)
+
+### Auth Flow
+- Middleware protects `/dashboard`, `/tournaments`, `/draw`
+- Logged-in users redirected away from `/auth/*` pages
+- Organizer ownership checked for tournament edit/delete

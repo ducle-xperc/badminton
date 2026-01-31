@@ -1,6 +1,6 @@
 "use client";
 
-import { mockParticipants, groupParticipantsByTeam } from "../data/mock-data";
+import { mockParticipants, groupParticipantsByTeam, getTeamColor } from "../data/mock-data";
 
 interface TeamTabProps {
   tournamentId: string;
@@ -24,45 +24,48 @@ export function TeamTab({ tournamentId }: TeamTabProps) {
           <p className="text-gray-400">No teams formed yet</p>
         </div>
       ) : (
-        teams.map((team) => (
-          <div
-            key={team.team_number}
-            className="bg-card-dark/80 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden"
-          >
-            {/* Team Header */}
-            <div className="bg-primary/10 border-b border-white/5 px-5 py-3 flex items-center gap-3">
-              <div className="size-10 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-white font-bold text-lg">{team.team_letter}</span>
-              </div>
-              <div>
-                <h3 className="text-white font-bold">Team {team.team_letter}</h3>
-                <p className="text-xs text-gray-400">{team.members.length} members</p>
-              </div>
-            </div>
-
-            {/* Team Members */}
-            <div className="p-4 space-y-3">
-              {team.members.map((member) => (
-                <div key={member.id} className="flex items-center gap-3">
-                  <div className="size-10 rounded-full bg-card-dark flex items-center justify-center overflow-hidden">
-                    {member.user.avatar_url ? (
-                      <img
-                        src={member.user.avatar_url}
-                        alt={member.user.name}
-                        className="w-full h-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <span className="material-symbols-outlined text-gray-400 text-xl">
-                        person
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-white text-sm">{member.user.name}</span>
+        teams.map((team) => {
+          const colors = getTeamColor(team.team_number);
+          return (
+            <div
+              key={team.team_number}
+              className="bg-card-dark/80 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden"
+            >
+              {/* Team Header */}
+              <div className={`${colors.bg} border-b border-white/5 px-5 py-3 flex items-center gap-3`}>
+                <div className={`size-10 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center`}>
+                  <span className={`${colors.text} font-bold text-lg`}>{team.team_number}</span>
                 </div>
-              ))}
+                <div>
+                  <h3 className="text-white font-bold">Team {team.team_number}</h3>
+                  <p className="text-xs text-gray-400">{team.members.length} members</p>
+                </div>
+              </div>
+
+              {/* Team Members */}
+              <div className="p-4 space-y-3">
+                {team.members.map((member) => (
+                  <div key={member.id} className="flex items-center gap-3">
+                    <div className="size-10 rounded-full bg-card-dark flex items-center justify-center overflow-hidden">
+                      {member.user.avatar_url ? (
+                        <img
+                          src={member.user.avatar_url}
+                          alt={member.user.name}
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
+                        <span className="material-symbols-outlined text-gray-400 text-xl">
+                          person
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-white text-sm">{member.user.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );

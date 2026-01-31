@@ -1,6 +1,6 @@
 "use client";
 
-import { mockRankings, mockParticipants, groupParticipantsByTeam } from "../data/mock-data";
+import { mockRankings, mockParticipants, groupParticipantsByTeam, getTeamColor } from "../data/mock-data";
 
 interface MVPTabProps {
   tournamentId: string;
@@ -62,7 +62,7 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
           <div className="flex flex-col items-center">
             <div className="size-14 rounded-full bg-gray-300/20 border-2 border-gray-300 flex items-center justify-center mb-2">
               <span className="text-gray-300 font-bold text-xl">
-                {rankings[1].team_letter}
+                {rankings[1].team_number}
               </span>
             </div>
             <div className="w-20 h-24 bg-gradient-to-t from-gray-300/30 to-gray-300/10 rounded-t-lg flex flex-col items-center justify-center border-t border-x border-gray-300/30">
@@ -80,7 +80,7 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
             </span>
             <div className="size-16 rounded-full bg-gold-accent/30 border-2 border-gold-accent flex items-center justify-center mb-2">
               <span className="text-gold-accent font-bold text-2xl">
-                {rankings[0].team_letter}
+                {rankings[0].team_number}
               </span>
             </div>
             <div className="w-24 h-32 bg-gradient-to-t from-gold-accent/30 to-gold-accent/10 rounded-t-lg flex flex-col items-center justify-center border-t border-x border-gold-accent/30">
@@ -95,7 +95,7 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
           <div className="flex flex-col items-center">
             <div className="size-14 rounded-full bg-amber-600/20 border-2 border-amber-600 flex items-center justify-center mb-2">
               <span className="text-amber-600 font-bold text-xl">
-                {rankings[2].team_letter}
+                {rankings[2].team_number}
               </span>
             </div>
             <div className="w-20 h-20 bg-gradient-to-t from-amber-600/30 to-amber-600/10 rounded-t-lg flex flex-col items-center justify-center border-t border-x border-amber-600/30">
@@ -111,6 +111,7 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
         <h3 className="text-white font-bold mb-4">Full Rankings</h3>
         {rankings.map((ranking) => {
           const medal = getMedalIcon(ranking.position);
+          const colors = getTeamColor(ranking.team_number);
           return (
             <div
               key={ranking.position}
@@ -126,13 +127,13 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
               </div>
 
               {/* Team Badge */}
-              <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center">
-                <span className="text-primary font-bold text-xl">{ranking.team_letter}</span>
+              <div className={`size-12 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center`}>
+                <span className={`${colors.text} font-bold text-xl`}>{ranking.team_number}</span>
               </div>
 
               {/* Team Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold">Team {ranking.team_letter}</p>
+                <p className="text-white font-bold">Team {ranking.team_number}</p>
                 <p className="text-xs text-gray-500 truncate">
                   {ranking.members.map((m) => m.user.name).join(", ") || "No members"}
                 </p>

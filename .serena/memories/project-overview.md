@@ -4,9 +4,10 @@
 - **Next.js 16** with App Router (React Server Components by default)
 - **React 19** with Lexend font family
 - **Tailwind CSS v4** using `@import "tailwindcss"` syntax
-- **Supabase** for backend (auth, database, realtime)
+- **Supabase** for backend (auth, database)
 - **TypeScript** with strict mode
 - **Bun** as package manager
+- **Zod + React Hook Form** for form validation
 
 ## Commands
 ```bash
@@ -20,43 +21,63 @@ bun lint      # Run ESLint
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── layout.tsx          # Root layout (dark mode default)
-│   ├── page.tsx            # Home page
-│   ├── login/              # Authentication
+│   ├── auth/               # Login, signup, password reset, callback
 │   ├── dashboard/          # User dashboard
-│   ├── tournaments/        # Tournament listing
+│   ├── tournaments/        # Tournament CRUD with [id] dynamic routes
+│   │   ├── new/            # Create tournament
+│   │   └── [id]/           # View/edit tournament with tab components
 │   └── draw/               # Tournament brackets
 ├── lib/
+│   ├── actions/            # Server Actions
+│   │   ├── auth.ts         # signIn, signUp, signOut, forgotPassword, resetPassword
+│   │   └── tournament.ts   # CRUD operations for tournaments
+│   ├── validations/        # Zod schemas
+│   │   ├── auth.ts         # Auth form validation
+│   │   └── tournament.ts   # Tournament form validation
 │   └── supabase/           # Supabase client utilities
 │       ├── client.ts       # Browser client (Client Components)
 │       ├── server.ts       # Server client (Server Components)
 │       └── proxy.ts        # Session refresh helper
-└── proxy.ts                # Next.js proxy (replaces middleware in v16)
+├── types/
+│   └── database.ts         # TypeScript interfaces (Tournament, Match, Team, etc.)
+└── middleware.ts           # Auth protection for routes
 ```
 
-## Supabase Setup
+## Database Tables
+- `tournaments` - Tournament entities with organizer ownership
+- `profiles` - User profiles with nickname (linked to Supabase Auth)
 
-### Environment Variables (.env.local)
-- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon/public key
+## Key Patterns
 
-### Usage
-
-**Server Components:**
+### Server Actions
+All mutations in `lib/actions/`. Return `{ error?: string; success?: string; data?: T }`.
 ```typescript
+"use server";
 import { createClient } from "@/lib/supabase/server";
-const supabase = await createClient();
+export async function createTournament(input: TournamentInput): Promise<TournamentResult> {
+  const supabase = await createClient();
+  // ... mutation
+  revalidatePath("/tournaments");
+  redirect(`/tournaments/${data.id}`);
+}
 ```
 
-**Client Components:**
-```typescript
-"use client";
-import { createClient } from "@/lib/supabase/client";
-const supabase = createClient();
-```
+### Supabase Usage
+**Server:** `const supabase = await createClient();` (from `@/lib/supabase/server`)
+**Client:** `const supabase = createClient();` (from `@/lib/supabase/client`)
 
-## Important Notes
-- Next.js 16 uses `proxy.ts` instead of `middleware.ts` (renamed convention)
-- Dark mode is enabled by default (`<html className="dark">`)
-- Material Symbols Outlined icons loaded via Google Fonts
-- Path alias: `@/*` → `./src/*`
+### Auth Flow
+- Middleware protects: `/dashboard`, `/tournaments`, `/draw`
+- Logged-in users redirected away from `/auth/*` pages
+- Organizer ownership checked for tournament edit/delete
+
+## TypeScript Types (src/types/database.ts)
+- `Tournament`, `TournamentInsert`, `TournamentUpdate`
+- `TournamentParticipant`, `TournamentTeam`
+- `TournamentMatch` (with MatchRound, MatchStatus)
+- `TournamentRanking`
+
+## UI Notes
+- Dark mode enabled by default
+- Material Symbols Outlined icons via Google Fonts
+- Tournament detail page uses tab components (Info, Participant, Team, Match, MVP)

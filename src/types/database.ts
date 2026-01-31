@@ -45,7 +45,6 @@ export interface TournamentParticipant {
 // Team derived from participants with same team_number
 export interface TournamentTeam {
   team_number: number;
-  team_letter: string; // A, B, C, D... derived from team_number
   members: TournamentParticipant[];
 }
 
@@ -72,7 +71,6 @@ export interface TournamentMatch {
 export interface TournamentRanking {
   position: number;
   team_number: number;
-  team_letter: string;
   members: TournamentParticipant[];
   points: number;
   wins: number;
