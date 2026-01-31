@@ -1,8 +1,3 @@
-import type {
-  TournamentMatch,
-  TournamentRanking,
-} from "@/types/database";
-
 // Local mock types for display (not tied to database structure)
 export interface MockParticipant {
   id: string;
@@ -194,88 +189,6 @@ export const mockParticipants: MockParticipant[] = [
       avatar_url: null,
       email: "h@example.com",
     },
-  },
-];
-
-export const mockMatches: TournamentMatch[] = [
-  // Semifinals
-  {
-    id: "m1",
-    tournament_id: "t1",
-    round: "semifinal",
-    round_number: 1,
-    team1_number: 1,
-    team2_number: 4,
-    team1_score: 21,
-    team2_score: 18,
-    winner_team_number: 1,
-    scheduled_at: "2025-02-01T09:00:00Z",
-    status: "completed",
-    court: "Court 1",
-  },
-  {
-    id: "m2",
-    tournament_id: "t1",
-    round: "semifinal",
-    round_number: 2,
-    team1_number: 2,
-    team2_number: 3,
-    team1_score: 21,
-    team2_score: 19,
-    winner_team_number: 2,
-    scheduled_at: "2025-02-01T10:30:00Z",
-    status: "completed",
-    court: "Court 2",
-  },
-  // Final
-  {
-    id: "m3",
-    tournament_id: "t1",
-    round: "final",
-    round_number: 1,
-    team1_number: 1,
-    team2_number: 2,
-    team1_score: null,
-    team2_score: null,
-    winner_team_number: null,
-    scheduled_at: "2025-02-02T14:00:00Z",
-    status: "upcoming",
-    court: "Center Court",
-  },
-];
-
-export const mockRankings: TournamentRanking[] = [
-  {
-    position: 1,
-    team_number: 1,
-    members: [],
-    points: 100,
-    wins: 2,
-    losses: 0,
-  },
-  {
-    position: 2,
-    team_number: 2,
-    members: [],
-    points: 75,
-    wins: 1,
-    losses: 1,
-  },
-  {
-    position: 3,
-    team_number: 3,
-    members: [],
-    points: 50,
-    wins: 0,
-    losses: 1,
-  },
-  {
-    position: 4,
-    team_number: 4,
-    members: [],
-    points: 25,
-    wins: 0,
-    losses: 1,
   },
 ];
 

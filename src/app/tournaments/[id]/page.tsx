@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTournament } from "@/lib/actions/tournament";
 import { getParticipantRegistration } from "@/lib/actions/draw";
+import { createClient } from "@/lib/supabase/server";
 import { TournamentHeader } from "./components/TournamentHeader";
 import { TabGroup } from "./components/TabGroup";
 import { InfoTab } from "./components/InfoTab";
@@ -31,6 +32,10 @@ export default async function TournamentDetailPage({ params }: PageProps) {
 
   const { data: registration } = await getParticipantRegistration(id);
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isOwner = user?.id === tournament.organizer_id;
+
   return (
     <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col">
       <TournamentHeader tournament={tournament} />
@@ -41,6 +46,7 @@ export default async function TournamentDetailPage({ params }: PageProps) {
             tournament={tournament}
             isRegistered={!!registration}
             teamNumber={registration?.team_number ?? null}
+            isOwner={isOwner}
           />
           <ParticipantTab tournamentId={id} />
           <TeamTab tournamentId={id} />

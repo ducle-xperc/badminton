@@ -7,9 +7,10 @@ interface InfoTabProps {
   tournament: Tournament;
   isRegistered: boolean;
   teamNumber: number | null;
+  isOwner: boolean;
 }
 
-export function InfoTab({ tournament, isRegistered, teamNumber }: InfoTabProps) {
+export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoTabProps) {
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("vi-VN", {
       year: "numeric",
@@ -122,16 +123,18 @@ export function InfoTab({ tournament, isRegistered, teamNumber }: InfoTabProps) 
           tournamentStatus={tournament.status}
         />
 
-        <div className="flex gap-3">
-          <Link
-            href={`/tournaments/${tournament.id}/edit`}
-            className="flex-1 bg-card-dark hover:bg-card-dark/80 border border-white/10 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
-          >
-            <span className="material-symbols-outlined text-xl">edit</span>
-            Edit
-          </Link>
-          <DeleteTournamentButton id={tournament.id} />
-        </div>
+        {isOwner && (
+          <div className="flex gap-3">
+            <Link
+              href={`/tournaments/${tournament.id}/edit`}
+              className="flex-1 bg-card-dark hover:bg-card-dark/80 border border-white/10 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+            >
+              <span className="material-symbols-outlined text-xl">edit</span>
+              Edit
+            </Link>
+            <DeleteTournamentButton id={tournament.id} />
+          </div>
+        )}
       </div>
     </div>
   );

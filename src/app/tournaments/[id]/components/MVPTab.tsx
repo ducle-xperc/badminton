@@ -1,17 +1,12 @@
-"use client";
-
-import { mockRankings, mockParticipants, groupParticipantsByTeam, getTeamColor } from "../data/mock-data";
+import { getTournamentRankings } from "@/lib/actions/match";
+import { getTeamColor } from "../data/mock-data";
 
 interface MVPTabProps {
   tournamentId: string;
 }
 
-export function MVPTab({ tournamentId }: MVPTabProps) {
-  const teams = groupParticipantsByTeam(mockParticipants);
-  const rankings = mockRankings.map((r) => ({
-    ...r,
-    members: teams.find((t) => t.team_number === r.team_number)?.members || [],
-  }));
+export async function MVPTab({ tournamentId }: MVPTabProps) {
+  const { data: rankings, error } = await getTournamentRankings(tournamentId);
 
   const getMedalIcon = (position: number) => {
     switch (position) {
@@ -39,7 +34,18 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
     }
   };
 
-  if (rankings.length === 0) {
+  if (error) {
+    return (
+      <div className="px-6 pb-8">
+        <h2 className="text-lg font-bold text-white mb-4">MVP Rankings</h2>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
+          <p className="text-red-400">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!rankings || rankings.length === 0) {
     return (
       <div className="px-6 pb-8">
         <h2 className="text-lg font-bold text-white mb-4">MVP Rankings</h2>
@@ -47,7 +53,7 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
           <span className="material-symbols-outlined text-4xl text-gray-500 mb-2">
             leaderboard
           </span>
-          <p className="text-gray-400">Rankings will be available after matches</p>
+          <p className="text-gray-400">Xếp hạng sẽ hiển thị sau khi giải đấu kết thúc</p>
         </div>
       </div>
     );
@@ -112,6 +118,10 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
         {rankings.map((ranking) => {
           const medal = getMedalIcon(ranking.position);
           const colors = getTeamColor(ranking.team_number);
+          const memberNames = ranking.members
+            ?.map((m) => m.profile?.nickname || m.profile?.email || "Unknown")
+            .join(", ") || "No members";
+
           return (
             <div
               key={ranking.position}
@@ -135,7 +145,7 @@ export function MVPTab({ tournamentId }: MVPTabProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-white font-bold">Team {ranking.team_number}</p>
                 <p className="text-xs text-gray-500 truncate">
-                  {ranking.members.map((m) => m.user.name).join(", ") || "No members"}
+                  {memberNames}
                 </p>
               </div>
 
