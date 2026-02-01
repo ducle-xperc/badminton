@@ -394,3 +394,143 @@ export async function getTournamentTeams(
 
   return { data: teamsWithMembers as TournamentTeam[] };
 }
+
+// Get unassigned participants (no team assigned)
+export async function getUnassignedParticipants(
+  tournamentId: string
+): Promise<{ error?: string; data?: TournamentParticipant[] }> {
+  const supabase = await createClient();
+
+  const { data: participants, error } = await supabase
+    .from("tournament_participants")
+    .select("*")
+    .eq("tournament_id", tournamentId)
+    .is("team_id", null)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  if (!participants || participants.length === 0) {
+    return { data: [] };
+  }
+
+  // Fetch profiles for participants
+  const userIds = participants.map((p) => p.user_id);
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, nickname, email, avatar_url, gender")
+    .in("id", userIds);
+
+  const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
+  const participantsWithProfiles = participants.map((p) => ({
+    ...p,
+    profile: profileMap.get(p.user_id),
+  }));
+
+  return { data: participantsWithProfiles as TournamentParticipant[] };
+}
+
+// Assign participant to a team (organizer only)
+export async function assignParticipantToTeam(
+  tournamentId: string,
+  participantId: string,
+  teamId: string
+): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "You must be logged in" };
+  }
+
+  // Check if user is organizer
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("organizer_id")
+    .eq("id", tournamentId)
+    .single();
+
+  if (tournament?.organizer_id !== user.id) {
+    return { error: "Only the organizer can assign participants" };
+  }
+
+  // Check if team exists and is not full
+  const { data: team } = await supabase
+    .from("tournament_teams")
+    .select("id, team_number, is_full")
+    .eq("id", teamId)
+    .eq("tournament_id", tournamentId)
+    .single();
+
+  if (!team) {
+    return { error: "Team not found" };
+  }
+
+  if (team.is_full) {
+    return { error: "Team is already full" };
+  }
+
+  // Update participant
+  const { error: updateError } = await supabase
+    .from("tournament_participants")
+    .update({
+      team_id: teamId,
+      team_number: team.team_number,
+    })
+    .eq("id", participantId)
+    .eq("tournament_id", tournamentId);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath(`/tournaments/${tournamentId}`);
+  return { success: "Participant assigned to team" };
+}
+
+// Unassign participant from team (organizer only)
+export async function unassignParticipantFromTeam(
+  tournamentId: string,
+  participantId: string
+): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "You must be logged in" };
+  }
+
+  // Check if user is organizer
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("organizer_id")
+    .eq("id", tournamentId)
+    .single();
+
+  if (tournament?.organizer_id !== user.id) {
+    return { error: "Only the organizer can unassign participants" };
+  }
+
+  // Update participant - remove team assignment
+  const { error: updateError } = await supabase
+    .from("tournament_participants")
+    .update({
+      team_id: null,
+      team_number: null,
+    })
+    .eq("id", participantId)
+    .eq("tournament_id", tournamentId);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath(`/tournaments/${tournamentId}`);
+  return { success: "Participant removed from team" };
+}

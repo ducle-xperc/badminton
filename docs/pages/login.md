@@ -10,7 +10,7 @@
 
 ## Mô tả
 
-Trang đăng nhập cho người dùng tham gia giải đấu XPERC Badminton World Cup.
+Trang đăng nhập cho người dùng tham gia giải đấu Badminton VietNam Arena.
 
 ## Chức năng hiện tại
 
@@ -28,7 +28,7 @@ const handleSubmit = (e: React.FormEvent) => {
 
 ### 3. Branding
 - Logo trophy icon với gradient
-- Tiêu đề "XPERC BADMINTON WORLD CUP"
+- Tiêu đề "BADMINTON VIETNAM ARENA"
 - Badge "Official App"
 
 ## UI Components

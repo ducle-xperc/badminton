@@ -6,12 +6,12 @@
 
 ## Mô tả
 
-Trang chủ (Landing Page) của ứng dụng XPERC Badminton Vietnam Arena. Đây là trang giới thiệu sự kiện giải đấu cầu lông với thiết kế mobile-first.
+Trang chủ (Landing Page) của ứng dụng Badminton VietNam Arena. Đây là trang giới thiệu sự kiện giải đấu cầu lông với thiết kế mobile-first.
 
 ## Chức năng
 
 ### 1. Hiển thị thông tin sự kiện
-- **Tiêu đề**: "XPERC Tournament - BADMINTON WORLD CUP"
+- **Tiêu đề**: "VietNam Arena - BADMINTON WORLD CUP"
 - **Badge "Live Event"**: Hiển thị trạng thái sự kiện đang diễn ra
 - **Hình ảnh hero**: Hiển thị hình ảnh giải đấu
 

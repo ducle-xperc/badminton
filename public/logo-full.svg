@@ -33,13 +33,13 @@
     </g>
   </g>
 
-  <!-- XPERC Text -->
-  <text x="140" y="290" text-anchor="middle" font-family="Arial Black, Lexend, sans-serif" font-size="52" font-weight="900" fill="url(#blue-text)" letter-spacing="4">
-    XPERC
+  <!-- Badminton Text -->
+  <text x="140" y="290" text-anchor="middle" font-family="Arial Black, Lexend, sans-serif" font-size="40" font-weight="900" fill="url(#blue-text)" letter-spacing="3">
+    BADMINTON
   </text>
 
-  <!-- Badminton subtitle -->
+  <!-- Vietnam Arena subtitle -->
   <text x="140" y="335" text-anchor="middle" font-family="Arial, Lexend, sans-serif" font-size="16" font-weight="400" fill="#FFD700" letter-spacing="5">
-    BADMINTON VIETNAM
+    VIETNAM ARENA
   </text>
 </svg>

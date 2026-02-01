@@ -41,7 +41,7 @@ export default function SignUpPage() {
             Create Account
           </h1>
           <p className="text-gray-400 text-sm mt-2">
-            Join XPERC Badminton World Cup
+            Join Badminton VietNam Arena
           </p>
         </div>
 

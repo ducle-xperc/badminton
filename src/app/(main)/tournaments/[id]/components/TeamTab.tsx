@@ -1,7 +1,9 @@
-import { getTournamentTeams } from "@/lib/actions/draw";
+import { getTournamentTeams, getUnassignedParticipants } from "@/lib/actions/draw";
 import { isOrganizer } from "@/lib/actions/tournament";
 import { getTeamColor } from "../data/mock-data";
 import { ResetTeamsButton } from "./ResetTeamsButton";
+import { AssignParticipantButton } from "./AssignParticipantButton";
+import { UnassignParticipantButton } from "./UnassignParticipantButton";
 import { Avatar } from "@/components/ui/avatar";
 
 interface TeamTabProps {
@@ -9,10 +11,12 @@ interface TeamTabProps {
 }
 
 export async function TeamTab({ tournamentId }: TeamTabProps) {
-  const [{ data: teams, error }, isOwner] = await Promise.all([
-    getTournamentTeams(tournamentId),
-    isOrganizer(tournamentId),
-  ]);
+  const [{ data: teams, error }, isOwner, { data: unassignedParticipants }] =
+    await Promise.all([
+      getTournamentTeams(tournamentId),
+      isOrganizer(tournamentId),
+      getUnassignedParticipants(tournamentId),
+    ]);
 
   if (error) {
     return (
@@ -24,6 +28,8 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
     );
   }
 
+  const canManageTeams = isOwner;
+
   const teamList = [...(teams || [])].sort((a, b) => {
     const aHasMembers = (a.members?.length || 0) > 0;
     const bHasMembers = (b.members?.length || 0) > 0;
@@ -31,6 +37,8 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
     if (!aHasMembers && bHasMembers) return 1;
     return a.team_number - b.team_number;
   });
+
+  const unassigned = unassignedParticipants || [];
 
   return (
     <div className="px-6 pb-8 space-y-4">
@@ -41,6 +49,21 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
         </div>
         {isOwner && <ResetTeamsButton tournamentId={tournamentId} />}
       </div>
+
+      {/* Unassigned Participants Warning - only for organizers */}
+      {canManageTeams && unassigned.length > 0 && (
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="material-symbols-outlined text-yellow-500">warning</span>
+            <span className="text-yellow-500 font-medium text-sm">
+              {unassigned.length} unassigned participant{unassigned.length > 1 ? "s" : ""}
+            </span>
+          </div>
+          <p className="text-xs text-gray-400">
+            Use the &quot;Assign&quot; button on each team to manually assign participants.
+          </p>
+        </div>
+      )}
 
       {teamList.length === 0 ? (
         <div className="bg-card-dark/50 border border-white/5 rounded-xl p-8 text-center">
@@ -71,6 +94,16 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
                     {team.is_full && " • Full"}
                   </p>
                 </div>
+                {/* Assign button for organizers */}
+                {canManageTeams && (
+                  <AssignParticipantButton
+                    tournamentId={tournamentId}
+                    teamId={team.id}
+                    teamNumber={team.team_number}
+                    unassignedParticipants={unassigned}
+                    isFull={team.is_full}
+                  />
+                )}
               </div>
 
               {/* Team Members */}
@@ -112,6 +145,14 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
                               <span className="material-symbols-outlined text-sm">emoji_events</span>
                               <span className="text-xs">{member.achievementCount || 0}</span>
                             </div>
+                            {/* Unassign button for organizers */}
+                            {canManageTeams && (
+                              <UnassignParticipantButton
+                                tournamentId={tournamentId}
+                                participantId={member.id}
+                                participantName={displayName}
+                              />
+                            )}
                           </div>
                         </div>
                       );

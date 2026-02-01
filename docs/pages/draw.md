@@ -16,7 +16,7 @@ Trang quay số may mắn (Lucky Number Draw) cho giải đấu. Cho phép quay 
 
 ### 1. Top App Bar (UI only)
 - **Back button**: arrow_back - ❌ No navigation
-- **Title**: "XPERC Badminton WC"
+- **Title**: "Badminton VietNam Arena"
 - **Settings button**: settings icon - ❌ No handler
 
 ### 2. Main Display Stage (Static)

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-XPERC Badminton Vietnam Arena - Tournament web application built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, and Supabase. Uses Bun as package manager.
+Badminton VietNam Arena - Tournament web application built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, and Supabase. Uses Bun as package manager.
 
 ## Commands
 

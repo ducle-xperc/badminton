@@ -31,13 +31,13 @@
     </g>
   </g>
 
-  <!-- XPERC Text -->
-  <text x="195" y="95" font-family="Arial Black, Lexend, sans-serif" font-size="64" font-weight="900" fill="url(#blue-text)">
-    XPERC
+  <!-- Badminton Text -->
+  <text x="195" y="85" font-family="Arial Black, Lexend, sans-serif" font-size="48" font-weight="900" fill="url(#blue-text)">
+    BADMINTON
   </text>
 
-  <!-- Badminton subtitle -->
-  <text x="195" y="140" font-family="Arial, Lexend, sans-serif" font-size="24" font-weight="400" fill="#FFD700" letter-spacing="6">
-    BADMINTON
+  <!-- Vietnam Arena subtitle -->
+  <text x="195" y="130" font-family="Arial, Lexend, sans-serif" font-size="22" font-weight="400" fill="#FFD700" letter-spacing="4">
+    VIETNAM ARENA
   </text>
 </svg>

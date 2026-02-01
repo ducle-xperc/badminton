@@ -46,9 +46,8 @@ function LoginForm() {
               Official App
             </span>
             <h1 className="text-3xl font-extrabold tracking-tight uppercase leading-none">
-              XPERC <br />
               <span className="text-primary italic">BADMINTON</span> <br />
-              <span className="text-white">WORLD CUP</span>
+              <span className="text-white">VIETNAM ARENA</span>
             </h1>
           </div>
         </div>

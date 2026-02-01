@@ -1,4 +1,4 @@
-# XPERC Badminton Vietnam Arena - Documentation
+# Badminton VietNam Arena - Documentation
 
 ## Overview
 

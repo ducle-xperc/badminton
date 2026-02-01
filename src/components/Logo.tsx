@@ -57,15 +57,15 @@ export function Logo({ variant = "icon", size = 40, className }: LogoProps) {
         <div className="flex flex-col items-center">
           <span
             className="font-extrabold tracking-wider bg-gradient-to-r from-primary to-gold-accent bg-clip-text text-transparent"
-            style={{ fontSize: iconSize * 0.45 }}
+            style={{ fontSize: iconSize * 0.35 }}
           >
-            XPERC
+            BADMINTON
           </span>
           <span
             className="text-gold-accent tracking-[0.25em] font-light"
             style={{ fontSize: iconSize * 0.15 }}
           >
-            BADMINTON VIETNAM
+            VIETNAM ARENA
           </span>
         </div>
       </div>
@@ -79,15 +79,15 @@ export function Logo({ variant = "icon", size = 40, className }: LogoProps) {
       <div className="flex flex-col">
         <span
           className="font-extrabold tracking-wider bg-gradient-to-r from-primary to-gold-accent bg-clip-text text-transparent leading-none"
-          style={{ fontSize: iconSize * 0.55 }}
+          style={{ fontSize: iconSize * 0.4 }}
         >
-          XPERC
+          BADMINTON
         </span>
         <span
           className="text-gold-accent tracking-[0.2em] font-light"
-          style={{ fontSize: iconSize * 0.2 }}
+          style={{ fontSize: iconSize * 0.18 }}
         >
-          BADMINTON
+          VIETNAM ARENA
         </span>
       </div>
     </div>

@@ -1,7 +1,7 @@
 {
-  "name": "XPERC Badminton Vietnam Arena",
-  "short_name": "XPERC Badminton",
-  "description": "XPERC Badminton World Cup - Live Tournament",
+  "name": "Badminton VietNam Arena",
+  "short_name": "Badminton VN",
+  "description": "Badminton VietNam Arena - Live Tournament",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0e1a",

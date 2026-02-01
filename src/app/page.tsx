@@ -9,7 +9,7 @@ export default function Home() {
         <div className="relative z-10 mb-6">
           <div className="flex flex-col gap-1">
             <span className="text-gold-accent font-bold tracking-[0.2em] text-sm uppercase">
-              XPERC Tournament
+              VietNam Arena
             </span>
             <h1 className="text-[40px] leading-[1] font-extrabold tracking-tight uppercase">
               BADMINTON <br />

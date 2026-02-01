@@ -1,4 +1,4 @@
-# XPERC Badminton Vietnam Arena
+# Badminton VietNam Arena
 
 ## Project Summary
 Tournament management web application for badminton competitions with double elimination brackets, team management, achievements, and leaderboard.

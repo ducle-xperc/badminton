@@ -10,8 +10,8 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "XPERC Badminton Vietnam Arena",
-  description: "XPERC Badminton World Cup - Live Tournament",
+  title: "Badminton VietNam Arena",
+  description: "Badminton VietNam Arena - Live Tournament",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },

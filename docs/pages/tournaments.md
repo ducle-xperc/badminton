@@ -29,7 +29,7 @@ Trang danh sách các giải đấu cầu lông, cho phép người dùng xem, l
 
 ### 3. Tournament Cards (Hardcoded)
 
-#### Card 1: XPERC World Cup 2024
+#### Card 1: VietNam Arena World Cup 2024
 | Field | Value | Status |
 |-------|-------|--------|
 | Type | Major, Singles | ❌ Hardcoded |

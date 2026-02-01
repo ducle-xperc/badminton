@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-Lộ trình implement chi tiết để hoàn thiện XPERC Badminton Vietnam Arena từ UI prototype thành ứng dụng hoàn chỉnh.
+Lộ trình implement chi tiết để hoàn thiện Badminton VietNam Arena từ UI prototype thành ứng dụng hoàn chỉnh.
 
 ## Current State Summary
 
