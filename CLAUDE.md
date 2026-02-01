@@ -29,14 +29,17 @@ bun lint      # Run ESLint
 ### Key Directories
 ```
 src/
-├── app/                    # Next.js App Router pages
+├── app/
 │   ├── auth/               # Login, signup, password reset
-│   ├── dashboard/          # User dashboard with achievements
-│   ├── tournaments/        # Tournament CRUD with [id] dynamic routes
+│   ├── (main)/             # Route group with shared layout (protected routes)
+│   │   ├── dashboard/      # User dashboard with achievements
+│   │   ├── tournaments/    # Tournament CRUD with [id] dynamic routes
+│   │   ├── leaderboard/    # Global player rankings
+│   │   └── profile/        # User profile management
 │   └── draw/               # Tournament brackets visualization
 ├── components/ui/          # Reusable UI components (Button, Calendar, Popover)
 ├── lib/
-│   ├── actions/            # Server Actions (auth, tournament, match, achievement)
+│   ├── actions/            # Server Actions (auth, tournament, match, draw, achievement, leaderboard, profile)
 │   ├── validations/        # Zod schemas
 │   └── supabase/           # Supabase client utilities
 ├── types/                  # TypeScript interfaces (database.ts)
@@ -96,6 +99,15 @@ Tournaments use double elimination brackets with three bracket types:
 Tournament tracks `current_wb_round`, `current_lb_round`, and `bracket_generated` state.
 
 ### Auth Flow
-- Middleware protects `/dashboard`, `/tournaments`, `/draw`
+- Middleware protects `/dashboard`, `/tournaments`, `/draw`, `/profile`
 - Logged-in users redirected away from `/auth/*` pages
 - Organizer ownership checked for tournament edit/delete
+
+### Environment Variables
+
+Required in `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=<supabase-project-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```

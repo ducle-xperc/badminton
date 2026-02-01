@@ -273,7 +273,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
           <label
             className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
             htmlFor="entry_fee"
-          >Fee (VND)</label>
+          >Fee (VNĐ)</label>
           <input
             className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${
               errors.entry_fee
@@ -313,7 +313,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
           <input
             className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
             id="prize_pool"
-            placeholder="e.g., 10,000,000 VND"
+            placeholder="e.g., 10.000.000 VNĐ"
             type="text"
             {...register("prize_pool")}
           />

@@ -3,6 +3,9 @@ import type { Tournament } from "@/types/database";
 import { DeleteTournamentButton } from "../delete-button";
 import { RegistrationButton } from "./RegistrationButton";
 import { ResetTournamentButton } from "./ResetTournamentButton";
+import { ChampionsPodium } from "./ChampionsPodium";
+import { getTournamentRankings } from "@/lib/actions/match";
+import { getTournamentAchievementTiers } from "@/lib/actions/achievement";
 
 interface InfoTabProps {
   tournament: Tournament;
@@ -11,7 +14,16 @@ interface InfoTabProps {
   isOwner: boolean;
 }
 
-export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoTabProps) {
+export async function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoTabProps) {
+  // Fetch rankings and achievement tiers
+  let top3Rankings = null;
+  const { data: tiers } = await getTournamentAchievementTiers(tournament.id);
+
+  if (tournament.status === "completed") {
+    const { data } = await getTournamentRankings(tournament.id);
+    top3Rankings = data?.slice(0, 3) ?? null;
+  }
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
@@ -28,6 +40,16 @@ export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoT
         {tournament.description && (
           <p className="text-gray-400 text-sm">{tournament.description}</p>
         )}
+      </div>
+
+      {/* Champions Podium */}
+      <div className="mb-4">
+        <ChampionsPodium
+          rankings={top3Rankings}
+          tiers={tiers ?? []}
+          teamSize={tournament.team_size}
+          tournamentStatus={tournament.status}
+        />
       </div>
 
       {/* Info Cards */}
@@ -78,7 +100,7 @@ export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoT
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wider">Entry Fee</p>
               <p className="text-white font-medium">
-                {tournament.entry_fee.toLocaleString("en-US")} VND
+                {tournament.entry_fee.toLocaleString("vi-VN")} VNĐ
               </p>
             </div>
           </div>
@@ -92,7 +114,9 @@ export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoT
             </div>
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wider">Prize Pool</p>
-              <p className="text-white font-medium">{tournament.prize_pool}</p>
+              <p className="text-white font-medium">
+                {Number(tournament.prize_pool).toLocaleString("vi-VN")} VNĐ
+              </p>
             </div>
           </div>
         )}

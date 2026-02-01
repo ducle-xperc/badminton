@@ -139,43 +139,79 @@ export async function MVPTab({ tournamentId, isOwner, tournamentStatus }: MVPTab
         {rankings.map((ranking) => {
           const medal = getMedalIcon(ranking.position);
           const colors = getTeamColor(ranking.team_number);
-          const memberNames = ranking.members
-            ?.map((m) => m.profile?.nickname || m.profile?.email || "Unknown")
-            .join(", ") || "No members";
 
           return (
             <div
               key={ranking.position}
-              className={`rounded-xl border p-4 flex items-center gap-4 ${getPositionStyles(
-                ranking.position
-              )}`}
+              className={`rounded-xl border p-4 ${getPositionStyles(ranking.position)}`}
             >
-              {/* Position */}
-              <div className="w-8 text-center">
-                <span className={`material-symbols-outlined text-2xl ${medal.color}`}>
-                  {medal.icon}
-                </span>
+              {/* Header Row */}
+              <div className="flex items-center gap-4 mb-3">
+                {/* Position */}
+                <div className="w-8 text-center">
+                  <span className={`material-symbols-outlined text-2xl ${medal.color}`}>
+                    {medal.icon}
+                  </span>
+                </div>
+
+                {/* Team Badge */}
+                <div className={`size-12 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center`}>
+                  <span className={`${colors.text} font-bold text-xl`}>{ranking.team_number}</span>
+                </div>
+
+                {/* Team Title */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-bold">Team {ranking.team_number}</p>
+                </div>
+
+                {/* Stats */}
+                <div className="text-right flex-shrink-0">
+                  <p className="text-white font-bold">{ranking.points} pts</p>
+                  <p className="text-xs text-gray-500">
+                    {ranking.wins}W / {ranking.losses}L
+                  </p>
+                </div>
               </div>
 
-              {/* Team Badge */}
-              <div className={`size-12 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center`}>
-                <span className={`${colors.text} font-bold text-xl`}>{ranking.team_number}</span>
-              </div>
-
-              {/* Team Info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-bold">Team {ranking.team_number}</p>
-                <p className="text-xs text-gray-500 truncate">
-                  {memberNames}
-                </p>
-              </div>
-
-              {/* Stats */}
-              <div className="text-right flex-shrink-0">
-                <p className="text-white font-bold">{ranking.points} pts</p>
-                <p className="text-xs text-gray-500">
-                  {ranking.wins}W / {ranking.losses}L
-                </p>
+              {/* Team Members */}
+              <div className="pl-12">
+                {ranking.members && ranking.members.length > 0 ? (
+                  <div className="space-y-2">
+                    {ranking.members.map((member) => {
+                      const displayName = member.profile?.nickname || member.profile?.email || "Unknown";
+                      return (
+                        <div key={member.id} className="flex items-center gap-2">
+                          <div className="size-8 rounded-full bg-card-dark flex items-center justify-center flex-shrink-0">
+                            <span className="material-symbols-outlined text-gray-400 text-base">
+                              person
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-white text-sm truncate block">{displayName}</span>
+                            {member.profile?.status && (
+                              <div className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-gray-400 text-xs">campaign</span>
+                                <span className="text-xs text-gray-400 truncate">{member.profile.status}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-1 text-gray-400">
+                              <span className="material-symbols-outlined text-sm">sports_tennis</span>
+                              <span className="text-xs">{member.matchCount || 0}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-yellow-500">
+                              <span className="material-symbols-outlined text-sm">emoji_events</span>
+                              <span className="text-xs">{member.achievementCount || 0}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500">No members</p>
+                )}
               </div>
             </div>
           );

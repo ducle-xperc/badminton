@@ -7,6 +7,7 @@ import { getTeamColor } from "../data/mock-data";
 interface MatchCardProps {
   match: TournamentMatch;
   canEdit: boolean;
+  teamMembersMap: Map<number, string[]>;
 }
 
 function getMatchStatusStyles(status: string, isByeMatch: boolean): string {
@@ -23,11 +24,15 @@ function getMatchStatusStyles(status: string, isByeMatch: boolean): string {
   }
 }
 
-export function MatchCard({ match, canEdit }: MatchCardProps) {
+export function MatchCard({ match, canEdit, teamMembersMap }: MatchCardProps) {
   const team1Colors = getTeamColor(match.team1_number);
   const team2Colors = getTeamColor(match.team2_number);
   const isByeMatch = match.team2_number === null;
   const isCompleted = match.status === "completed";
+  
+  // Get member names for each team
+  const team1Members = match.team1_number ? teamMembersMap.get(match.team1_number) || [] : [];
+  const team2Members = match.team2_number ? teamMembersMap.get(match.team2_number) || [] : [];
 
   return (
     <div
@@ -58,6 +63,11 @@ export function MatchCard({ match, canEdit }: MatchCardProps) {
           <p className="text-white font-medium text-sm">
             Team {match.team1_number ?? "TBD"}
           </p>
+          {team1Members.length > 0 && (
+            <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[100px]" title={team1Members.join(", ")}>
+              {team1Members.join(", ")}
+            </p>
+          )}
           {/* Score display */}
           {match.team1_score !== null && !isByeMatch && (
             <p
@@ -125,6 +135,11 @@ export function MatchCard({ match, canEdit }: MatchCardProps) {
               <p className="text-white font-medium text-sm">
                 Team {match.team2_number ?? "TBD"}
               </p>
+              {team2Members.length > 0 && (
+                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[100px]" title={team2Members.join(", ")}>
+                  {team2Members.join(", ")}
+                </p>
+              )}
               {match.team2_score !== null && (
                 <p
                   className={`text-2xl font-bold mt-1 ${

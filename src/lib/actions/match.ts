@@ -8,6 +8,7 @@ import type {
   TournamentMatchInsert,
   TournamentRanking,
   TournamentRankingInsert,
+  TournamentParticipant,
   BracketType,
   UserAchievementInsert,
 } from "@/types/database";
@@ -139,17 +140,44 @@ export async function getTournamentRankings(
   // Fetch team members for each ranking
   const { data: participants } = await supabase
     .from("tournament_participants")
-    .select("*, profile:profiles(id, nickname, email)")
+    .select("*")
     .eq("tournament_id", tournamentId)
-    .not("team_number", "is", null);
+    .not("team_id", "is", null);
 
-  // Group participants by team
-  const teamMembers = new Map<number, typeof participants>();
+  // Fetch teams to get team_number mapping
+  const { data: teams } = await supabase
+    .from("tournament_teams")
+    .select("id, team_number")
+    .eq("tournament_id", tournamentId);
+
+  // Fetch profiles separately (same approach as getTournamentTeams)
+  const userIds = participants?.map((p) => p.user_id) || [];
+  const { data: profiles } = userIds.length > 0
+    ? await supabase
+        .from("profiles")
+        .select("id, nickname, email, status")
+        .in("id", userIds)
+    : { data: [] };
+
+  // Create profile map
+  const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
+
+  // Create team_id to team_number mapping
+  const teamIdToNumber = new Map(teams?.map((t) => [t.id, t.team_number]) || []);
+
+  // Group participants by team_number with profile info
+  const teamMembers = new Map<number, TournamentParticipant[]>();
   participants?.forEach((p) => {
-    if (p.team_number !== null) {
-      const members = teamMembers.get(p.team_number) || [];
-      members.push(p);
-      teamMembers.set(p.team_number, members);
+    // Use team_number directly, or look up from team_id
+    const teamNumber = p.team_number ?? teamIdToNumber.get(p.team_id);
+    if (teamNumber !== null && teamNumber !== undefined) {
+      const members = teamMembers.get(teamNumber) || [];
+      const participantWithProfile: TournamentParticipant = {
+        ...p,
+        profile: profileMap.get(p.user_id),
+      };
+      members.push(participantWithProfile);
+      teamMembers.set(teamNumber, members);
     }
   });
 
@@ -697,6 +725,129 @@ export async function updateMatchScore(
   };
 }
 
+
+export async function resetMatch(matchId: string): Promise<MatchResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "You need to login" };
+  }
+
+  // Get match and verify organizer
+  const { data: match } = await supabase
+    .from("tournament_matches")
+    .select("*, tournament:tournaments(organizer_id)")
+    .eq("id", matchId)
+    .single();
+
+  if (!match) {
+    return { error: "Match not found" };
+  }
+
+  if ((match.tournament as { organizer_id: string }).organizer_id !== user.id) {
+    return { error: "Only organizers can reset matches" };
+  }
+
+  if (match.status !== "completed") {
+    return { error: "Can only reset completed matches" };
+  }
+
+  // Reset match
+  const { data, error } = await supabase
+    .from("tournament_matches")
+    .update({
+      team1_score: null,
+      team2_score: null,
+      winner_team_number: null,
+      status: "upcoming",
+    })
+    .eq("id", matchId)
+    .select()
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/tournaments/${match.tournament_id}`);
+  return {
+    success: "Match has been reset",
+    data: data as TournamentMatch,
+  };
+}
+
+
+export async function resetAllMatches(tournamentId: string): Promise<MatchResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "You need to login" };
+  }
+
+  // Check if user is the organizer
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("organizer_id, status")
+    .eq("id", tournamentId)
+    .single();
+
+  if (!tournament) {
+    return { error: "Tournament not found" };
+  }
+
+  if (tournament.organizer_id !== user.id) {
+    return { error: "Only organizers can reset matches" };
+  }
+
+  if (tournament.status === "completed") {
+    return { error: "Cannot reset matches for completed tournament" };
+  }
+
+  // Delete all matches
+  const { error: matchesError } = await supabase
+    .from("tournament_matches")
+    .delete()
+    .eq("tournament_id", tournamentId);
+
+  if (matchesError) {
+    return { error: matchesError.message };
+  }
+
+  // Delete all rankings if any
+  const { error: rankingsError } = await supabase
+    .from("tournament_rankings")
+    .delete()
+    .eq("tournament_id", tournamentId);
+
+  if (rankingsError) {
+    return { error: rankingsError.message };
+  }
+
+  // Reset tournament bracket state
+  const { error: updateError } = await supabase
+    .from("tournaments")
+    .update({
+      bracket_generated: false,
+      current_wb_round: 1,
+      current_lb_round: 1,
+      status: "upcoming",
+    })
+    .eq("id", tournamentId);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath(`/tournaments/${tournamentId}`);
+  return { success: "All matches have been reset. You can now generate a new bracket." };
+}
+
 // ============================================
 // END TOURNAMENT & CALCULATE RANKINGS
 // ============================================
@@ -1048,39 +1199,41 @@ async function assignAchievementsToUsers(
     }
   });
 
-  // 5. For each ranking, find matching tier and create achievements
+  // 5. For each ranking, find ALL matching tiers and create achievements
   const achievements: UserAchievementInsert[] = [];
 
   for (const ranking of rankings) {
     const position = ranking.position;
-    const tier = tiers.find(
+    const matchingTiers = tiers.filter(
       (t) => position >= t.min_position && position <= t.max_position
     );
 
-    if (!tier) continue; // No tier for this position
+    if (matchingTiers.length === 0) continue; // No tiers for this position
 
     const userIds = teamToUsers.get(ranking.team_number) || [];
 
-    for (const userId of userIds) {
-      achievements.push({
-        user_id: userId,
-        tournament_id: tournamentId,
-        tier_id: tier.id,
-        title: tier.title,
-        color: tier.color,
-        icon: tier.icon,
-        position: position,
-        tournament_name: tournament.name,
-        earned_at: new Date().toISOString(),
-      });
+    for (const tier of matchingTiers) {
+      for (const userId of userIds) {
+        achievements.push({
+          user_id: userId,
+          tournament_id: tournamentId,
+          tier_id: tier.id,
+          title: tier.title,
+          color: tier.color,
+          icon: tier.icon,
+          position: position,
+          tournament_name: tournament.name,
+          earned_at: new Date().toISOString(),
+        });
+      }
     }
   }
 
-  // 6. Insert achievements (upsert to handle duplicates)
+  // 6. Insert achievements (upsert to handle duplicates per tier)
   if (achievements.length > 0) {
     await supabase
       .from("user_achievements")
-      .upsert(achievements, { onConflict: "user_id,tournament_id" });
+      .upsert(achievements, { onConflict: "user_id,tournament_id,tier_id" });
   }
 }
 

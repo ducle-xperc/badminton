@@ -233,6 +233,69 @@ export async function performDraw(
 }
 
 // Get all participants for a tournament
+
+// Helper function to calculate global stats for users (matchCount and achievementCount)
+async function getUsersGlobalStats(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userIds: string[]
+): Promise<Map<string, { matchCount: number; achievementCount: number }>> {
+  if (userIds.length === 0) return new Map();
+
+  const [participantsResult, achievementsResult, matchesResult] = await Promise.all([
+    supabase
+      .from("tournament_participants")
+      .select("user_id, tournament_id, team_number")
+      .in("user_id", userIds),
+    supabase.from("user_achievements").select("user_id").in("user_id", userIds),
+    supabase
+      .from("tournament_matches")
+      .select("tournament_id, team1_number, team2_number")
+      .eq("status", "completed"),
+  ]);
+
+  // Build team number map: userId -> (tournamentId -> teamNumber)
+  const teamNumberMap = new Map<string, Map<string, number>>();
+  for (const p of participantsResult.data || []) {
+    if (p.team_number !== null) {
+      if (!teamNumberMap.has(p.user_id)) {
+        teamNumberMap.set(p.user_id, new Map());
+      }
+      teamNumberMap.get(p.user_id)!.set(p.tournament_id, p.team_number);
+    }
+  }
+
+  // Count achievements per user
+  const achievementCountMap = new Map<string, number>();
+  for (const a of achievementsResult.data || []) {
+    achievementCountMap.set(a.user_id, (achievementCountMap.get(a.user_id) || 0) + 1);
+  }
+
+  // Count matches per user
+  const matchCountMap = new Map<string, number>();
+  for (const m of matchesResult.data || []) {
+    for (const userId of userIds) {
+      const teamNumber = teamNumberMap.get(userId)?.get(m.tournament_id);
+      if (
+        teamNumber !== undefined &&
+        (m.team1_number === teamNumber || m.team2_number === teamNumber)
+      ) {
+        matchCountMap.set(userId, (matchCountMap.get(userId) || 0) + 1);
+      }
+    }
+  }
+
+  // Combine into single stats map
+  const statsMap = new Map<string, { matchCount: number; achievementCount: number }>();
+  for (const userId of userIds) {
+    statsMap.set(userId, {
+      matchCount: matchCountMap.get(userId) || 0,
+      achievementCount: achievementCountMap.get(userId) || 0,
+    });
+  }
+
+  return statsMap;
+}
+
 export async function getTournamentParticipants(
   tournamentId: string
 ): Promise<{ error?: string; data?: TournamentParticipant[] }> {
@@ -255,20 +318,21 @@ export async function getTournamentParticipants(
 
   // Fetch profiles for all participants
   const userIds = participants.map((p) => p.user_id);
-  const { data: profiles, error: profilesError } = await supabase
+  const { data: profiles } = await supabase
     .from("profiles")
     .select("id, nickname, email, status")
     .in("id", userIds);
 
-  console.log("Debug - userIds:", userIds);
-  console.log("Debug - profiles:", profiles);
-  console.log("Debug - profilesError:", profilesError);
+  // Fetch global stats (matchCount, achievementCount) for all participants
+  const statsMap = await getUsersGlobalStats(supabase, userIds);
 
-  // Merge profiles into participants
+  // Merge profiles and stats into participants
   const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
   const participantsWithProfiles = participants.map((p) => ({
     ...p,
     profile: profileMap.get(p.user_id),
+    matchCount: statsMap.get(p.user_id)?.matchCount || 0,
+    achievementCount: statsMap.get(p.user_id)?.achievementCount || 0,
   }));
 
   return { data: participantsWithProfiles as TournamentParticipant[] };
@@ -305,19 +369,27 @@ export async function getTournamentTeams(
   const userIds = participants?.map((p) => p.user_id) || [];
   const { data: profiles } = userIds.length > 0
     ? await supabase.from("profiles")
-    .select("id, nickname, email, status")
-    .in("id", userIds)
+        .select("id, nickname, email, status")
+        .in("id", userIds)
     : { data: [] };
+
+  // Fetch global stats (matchCount, achievementCount) for all participants
+  const statsMap = await getUsersGlobalStats(supabase, userIds);
 
   // Create profile map
   const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
 
-  // Group participants by team with profile info
+  // Group participants by team with profile info and stats
   const teamsWithMembers = teams.map((team) => ({
     ...team,
     members: (participants || [])
       .filter((p) => p.team_id === team.id)
-      .map((p) => ({ ...p, profile: profileMap.get(p.user_id) })),
+      .map((p) => ({
+        ...p,
+        profile: profileMap.get(p.user_id),
+        matchCount: statsMap.get(p.user_id)?.matchCount || 0,
+        achievementCount: statsMap.get(p.user_id)?.achievementCount || 0,
+      })),
   }));
 
   return { data: teamsWithMembers as TournamentTeam[] };

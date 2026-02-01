@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180">
+  <defs>
+    <!-- Gold gradient -->
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE55C"/>
+      <stop offset="100%" stop-color="#CC9900"/>
+    </linearGradient>
+
+    <!-- Blue gradient for text -->
+    <linearGradient id="blue-text" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#135bec"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon (scaled) -->
+  <g transform="translate(10, 10) scale(0.31)">
+    <!-- Medal outer circle -->
+    <circle cx="256" cy="256" r="230" fill="url(#gold)"/>
+    <!-- Inner dark circle -->
+    <circle cx="256" cy="256" r="190" fill="#0a0e1a"/>
+    <!-- Shuttlecock -->
+    <g fill="url(#gold)">
+      <ellipse cx="256" cy="300" rx="45" ry="40"/>
+      <polygon points="256,120 200,290 312,290"/>
+    </g>
+    <!-- Stars -->
+    <g fill="url(#gold)" opacity="0.8">
+      <circle cx="140" cy="400" r="8"/>
+      <circle cx="372" cy="400" r="8"/>
+    </g>
+  </g>
+
+  <!-- XPERC Text -->
+  <text x="195" y="95" font-family="Arial Black, Lexend, sans-serif" font-size="64" font-weight="900" fill="url(#blue-text)">
+    XPERC
+  </text>
+
+  <!-- Badminton subtitle -->
+  <text x="195" y="140" font-family="Arial, Lexend, sans-serif" font-size="24" font-weight="400" fill="#FFD700" letter-spacing="6">
+    BADMINTON
+  </text>
+</svg>

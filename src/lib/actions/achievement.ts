@@ -213,31 +213,33 @@ export async function awardTournamentAchievements(
     }
   });
 
-  // 8. Create achievements for each ranking
+  // 8. Create achievements for each ranking (ALL matching tiers)
   const achievements: UserAchievementInsert[] = [];
 
   for (const ranking of rankings) {
     const position = ranking.position;
-    const tier = tiers.find(
+    const matchingTiers = tiers.filter(
       (t) => position >= t.min_position && position <= t.max_position
     );
 
-    if (!tier) continue;
+    if (matchingTiers.length === 0) continue;
 
     const userIds = teamToUsers.get(ranking.team_number) || [];
 
-    for (const userId of userIds) {
-      achievements.push({
-        user_id: userId,
-        tournament_id: tournamentId,
-        tier_id: tier.id,
-        title: tier.title,
-        color: tier.color,
-        icon: tier.icon,
-        position: position,
-        tournament_name: tournament.name,
-        earned_at: new Date().toISOString(),
-      });
+    for (const tier of matchingTiers) {
+      for (const userId of userIds) {
+        achievements.push({
+          user_id: userId,
+          tournament_id: tournamentId,
+          tier_id: tier.id,
+          title: tier.title,
+          color: tier.color,
+          icon: tier.icon,
+          position: position,
+          tournament_name: tournament.name,
+          earned_at: new Date().toISOString(),
+        });
+      }
     }
   }
 
@@ -245,10 +247,10 @@ export async function awardTournamentAchievements(
     return { error: "No achievements to award (check tier configuration)" };
   }
 
-  // 9. Insert achievements
+  // 9. Insert achievements (upsert to handle duplicates per tier)
   const { error: insertError } = await supabase
     .from("user_achievements")
-    .insert(achievements);
+    .upsert(achievements, { onConflict: "user_id,tournament_id,tier_id" });
 
   if (insertError) {
     return { error: insertError.message };

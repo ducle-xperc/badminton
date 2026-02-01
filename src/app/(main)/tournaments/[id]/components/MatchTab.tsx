@@ -1,25 +1,41 @@
 import { getTournamentMatches, isOrganizer, getTeamStats } from "@/lib/actions/match";
+import { getTournamentTeams } from "@/lib/actions/draw";
 import { getTournament } from "@/lib/actions/tournament";
 import { GenerateMatchesButton } from "./GenerateMatchesButton";
 import { EndTournamentButton } from "./EndTournamentButton";
 import { RoundTabs } from "./RoundTabs";
 import { ExportMatchesButton } from "./ExportMatchesButton";
+import { ResetMatchesButton } from "./ResetMatchesButton";
 
 interface MatchTabProps {
   tournamentId: string;
 }
 
 export async function MatchTab({ tournamentId }: MatchTabProps) {
-  const [matchesResult, isOrganizerResult, tournamentResult, teamStats] = await Promise.all([
+  const [matchesResult, isOrganizerResult, tournamentResult, teamStats, teamsResult] = await Promise.all([
     getTournamentMatches(tournamentId),
     isOrganizer(tournamentId),
     getTournament(tournamentId),
     getTeamStats(tournamentId),
+    getTournamentTeams(tournamentId),
   ]);
 
   const matches = matchesResult.data || [];
   const tournament = tournamentResult.data;
   const canManage = isOrganizerResult && tournament?.status !== "completed";
+  const teams = teamsResult.data || [];
+
+  // Debug log
+  console.log("Teams with members:", JSON.stringify(teams.map(t => ({ team_number: t.team_number, members: t.members?.map(m => m.profile?.nickname) })), null, 2));
+
+  // Create a map from team_number to member names
+  const teamMembersMap = new Map<number, string[]>();
+  teams.forEach((team) => {
+    const memberNames = (team.members || [])
+      .map((m) => m.profile?.nickname || "Unknown")
+      .filter(Boolean);
+    teamMembersMap.set(team.team_number, memberNames);
+  });
 
   // Check tournament state
   const hasMatches = matches.length > 0;
@@ -42,9 +58,9 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
         <h2 className="text-lg font-bold text-white">Matches</h2>
         <div className="flex items-center gap-3">
           {hasMatches && isOrganizerResult && (
-            <ExportMatchesButton 
-              matches={matches} 
-              tournamentName={tournament?.name} 
+            <ExportMatchesButton
+              matches={matches}
+              tournamentName={tournament?.name}
             />
           )}
           <span className="text-sm text-gray-400">{matches.length} matches</span>
@@ -98,6 +114,11 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
           {canEndTournament && (
             <EndTournamentButton tournamentId={tournamentId} />
           )}
+
+          {/* Reset Matches Button - show when bracket is generated */}
+          {bracketGenerated && (
+            <ResetMatchesButton tournamentId={tournamentId} />
+          )}
         </div>
       )}
 
@@ -130,7 +151,7 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
       )}
 
       {/* Matches by Round Tabs */}
-      {hasMatches && <RoundTabs matches={matches} canManage={canManage} />}
+      {hasMatches && <RoundTabs matches={matches} canManage={canManage} teamMembersMap={teamMembersMap} />}
     </div>
   );
 }

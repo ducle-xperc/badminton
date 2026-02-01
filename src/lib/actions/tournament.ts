@@ -339,6 +339,16 @@ export async function resetTournament(id: string): Promise<TournamentResult> {
     return { error: rankingsError.message };
   }
 
+  // Delete all achievements for this tournament
+  const { error: achievementsError } = await supabase
+    .from("user_achievements")
+    .delete()
+    .eq("tournament_id", id);
+
+  if (achievementsError) {
+    return { error: achievementsError.message };
+  }
+
   // Delete all participants
   const { error: participantsError } = await supabase
     .from("tournament_participants")

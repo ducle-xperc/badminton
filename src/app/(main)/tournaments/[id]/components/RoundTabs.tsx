@@ -7,6 +7,7 @@ import { MatchCard } from "./MatchCard";
 interface RoundTabsProps {
   matches: TournamentMatch[];
   canManage: boolean;
+  teamMembersMap: Map<number, string[]>;
 }
 
 interface RoundInfo {
@@ -141,6 +142,7 @@ interface BracketSectionProps {
   activeRoundId: string | null;
   onRoundSelect: (roundId: string) => void;
   canManage: boolean;
+  teamMembersMap: Map<number, string[]>;
 }
 
 function BracketSection({
@@ -150,6 +152,7 @@ function BracketSection({
   activeRoundId,
   onRoundSelect,
   canManage,
+  teamMembersMap,
 }: BracketSectionProps) {
   const { bracket, label, icon, rounds, completedRounds, totalRounds } =
     bracketInfo;
@@ -284,6 +287,7 @@ function BracketSection({
                     key={match.id}
                     match={match}
                     canEdit={canManage}
+                    teamMembersMap={teamMembersMap}
                   />
                 ))}
             </div>
@@ -294,7 +298,7 @@ function BracketSection({
   );
 }
 
-export function RoundTabs({ matches, canManage }: RoundTabsProps) {
+export function RoundTabs({ matches, canManage, teamMembersMap }: RoundTabsProps) {
   const brackets = useMemo(() => groupByBracket(matches), [matches]);
 
   const [expandedBracket, setExpandedBracket] = useState<BracketType | null>(
@@ -345,6 +349,7 @@ export function RoundTabs({ matches, canManage }: RoundTabsProps) {
           }
           onRoundSelect={handleRoundSelect}
           canManage={canManage}
+          teamMembersMap={teamMembersMap}
         />
       ))}
     </div>
