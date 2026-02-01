@@ -378,10 +378,11 @@ export async function generateNextRound(
       .map((m) => m.winner_team_number as number)
   )];
 
-  // Get losers from WB (exclude bye matches where team2 is null)
-  // IMPORTANT: Only get WB losers if WB will continue (create new round)
-  // If WB is complete, we need to check if this loser was already added to LB
-  const wbLosersFromCurrentRound = wbCurrentRoundMatches
+  // Get ALL losers from ALL WB rounds (not just current round)
+  // This ensures teams that lost in earlier rounds are not forgotten
+  // when LB couldn't be created yet (e.g., only 1 team in LB)
+  const allWBMatches = allMatches.filter((m) => m.bracket === "winners");
+  const allWBLosers = allWBMatches
     .filter((m) => m.winner_team_number !== null && m.team2_number !== null) // Exclude bye matches
     .map((m) =>
       m.team1_number === m.winner_team_number ? m.team2_number : m.team1_number
@@ -397,7 +398,7 @@ export async function generateNextRound(
   });
 
   // Only include WB losers that haven't been added to LB yet
-  const wbLosers = wbLosersFromCurrentRound.filter(
+  const wbLosers = allWBLosers.filter(
     (teamNum) => !teamsAlreadyInLB.has(teamNum)
   );
 
