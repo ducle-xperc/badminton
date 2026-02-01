@@ -1,33 +1,20 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getTournament } from "@/lib/actions/tournament";
-import { getTournamentAchievementTiers } from "@/lib/actions/achievement";
-import { TournamentForm } from "../../tournament-form";
+import { Suspense } from "react";
+import { getLeaderboard, type SortOption } from "@/lib/actions/leaderboard";
+import { LeaderboardList } from "./leaderboard-list";
+import { LeaderboardFilters } from "./leaderboard-filters";
+import { BottomNav } from "@/components/BottomNav";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
+interface LeaderboardPageProps {
+  searchParams: Promise<{ sort?: string }>;
 }
 
-export default async function EditTournamentPage({ params }: PageProps) {
-  const { id } = await params;
-  const [tournamentResult, tiersResult] = await Promise.all([
-    getTournament(id),
-    getTournamentAchievementTiers(id),
-  ]);
-
-  if (tournamentResult.error || !tournamentResult.data) {
-    notFound();
-  }
-
-  const tournament = tournamentResult.data;
-  const existingTiers = tiersResult.data?.map((tier) => ({
-    min_position: tier.min_position,
-    max_position: tier.max_position,
-    title: tier.title,
-    color: tier.color,
-    icon: tier.icon ?? undefined,
-    display_order: tier.display_order,
-  }));
+export default async function LeaderboardPage({
+  searchParams,
+}: LeaderboardPageProps) {
+  const params = await searchParams;
+  const sortBy = (params.sort as SortOption) || "achievements";
+  const { data: leaderboard } = await getLeaderboard(sortBy);
 
   return (
     <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col">
@@ -37,28 +24,38 @@ export default async function EditTournamentPage({ params }: PageProps) {
         <div className="absolute bottom-1/4 left-0 w-full h-[2px] court-line"></div>
         <div className="absolute left-1/2 top-0 w-[2px] h-full court-line -translate-x-1/2"></div>
         <div className="absolute -top-20 -right-20 w-64 h-64 border border-gold-accent/20 rounded-full"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5">
+          <span className="material-symbols-outlined text-[300px]">
+            leaderboard
+          </span>
+        </div>
       </div>
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-6 py-6 pt-8 bg-gradient-to-b from-navy-deep to-transparent">
         <div className="flex items-center gap-2">
           <Link
-            href={`/tournaments/${id}`}
+            href="/dashboard"
             className="size-10 rounded-xl bg-card-dark/50 border border-white/5 flex items-center justify-center text-white backdrop-blur-md hover:bg-card-dark transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </Link>
         </div>
         <h1 className="text-lg font-bold tracking-wide uppercase text-white/90">
-          Edit Tournament
+          Leaderboard
         </h1>
         <div className="w-10"></div>
       </div>
 
-      {/* Form Content */}
-      <div className="relative z-10 flex-1 px-6 overflow-y-auto hide-scroll pb-8">
-        <TournamentForm tournament={tournament} mode="edit" existingTiers={existingTiers} />
-      </div>
+      {/* Filter Tabs */}
+      <Suspense fallback={null}>
+        <LeaderboardFilters />
+      </Suspense>
+
+      {/* Leaderboard List */}
+      <LeaderboardList entries={leaderboard || []} />
+
+      <BottomNav />
     </div>
   );
 }

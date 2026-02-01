@@ -51,6 +51,27 @@ export const achievementTierSchema = z.object({
 
 export type AchievementTierInput = z.infer<typeof achievementTierSchema>;
 
+// Extended schema for form that includes achievement tiers
+export const tournamentFormSchema = baseSchema.extend({
+  achievement_tiers: z.array(achievementTierSchema).optional().default([]),
+})
+  .refine((data) => new Date(data.end_date) >= new Date(data.start_date), {
+    message: "End date must be after start date",
+    path: ["end_date"],
+  })
+  .refine(
+    (data) => {
+      if (!data.registration_deadline) return true;
+      return new Date(data.registration_deadline) <= new Date(data.start_date);
+    },
+    {
+      message: "Registration deadline must be before start date",
+      path: ["registration_deadline"],
+    }
+  );
+
+export type TournamentFormData = z.infer<typeof tournamentFormSchema>;
+
 // Default achievement tiers
 export const DEFAULT_ACHIEVEMENT_TIERS: AchievementTierInput[] = [
   { min_position: 1, max_position: 1, title: "Champion", color: "#FFD700", icon: "emoji_events", display_order: 1 },

@@ -58,3 +58,38 @@ export async function getUserAchievementStats(): Promise<AchievementStats> {
 
   return { totalAchievements: total, championshipCount: championships };
 }
+
+
+export type AchievementTier = {
+  id: string;
+  tournament_id: string;
+  min_position: number;
+  max_position: number;
+  title: string;
+  color: string;
+  icon: string | null;
+  display_order: number;
+};
+
+export type AchievementTiersResult = {
+  data?: AchievementTier[];
+  error?: string;
+};
+
+export async function getTournamentAchievementTiers(
+  tournamentId: string
+): Promise<AchievementTiersResult> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("tournament_achievement_tiers")
+    .select("*")
+    .eq("tournament_id", tournamentId)
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { data: data as AchievementTier[] };
+}

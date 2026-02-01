@@ -3,15 +3,13 @@
 import { useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { tournamentSchema, type TournamentInput, type AchievementTierInput } from "@/lib/validations/tournament";
+import { tournamentFormSchema, type TournamentFormData, type AchievementTierInput } from "@/lib/validations/tournament";
 import { createTournament, updateTournament } from "@/lib/actions/tournament";
 import type { Tournament } from "@/types/database";
 import { AchievementTiersSection } from "./components/AchievementTiersSection";
 import { DatePicker } from "@/components/ui/date-picker";
 
-type TournamentFormData = TournamentInput & {
-  achievement_tiers?: AchievementTierInput[];
-};
+// TournamentFormData is now imported from validations
 
 interface TournamentFormProps {
   tournament?: Tournament;
@@ -28,7 +26,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
     control,
     formState: { errors, isSubmitting },
   } = useForm<TournamentFormData>({
-    resolver: zodResolver(tournamentSchema) as Resolver<TournamentFormData>,
+    resolver: zodResolver(tournamentFormSchema) as Resolver<TournamentFormData>,
     defaultValues: tournament
       ? {
           name: tournament.name,
