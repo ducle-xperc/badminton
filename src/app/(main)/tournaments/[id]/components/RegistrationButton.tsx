@@ -23,7 +23,7 @@ export function RegistrationButton({
         <span className="material-symbols-outlined text-green-500">
           check_circle
         </span>
-        <span className="text-green-400 flex-1">Bạn đã đăng ký</span>
+        <span className="text-green-400 flex-1">You have registered</span>
         {teamNumber ? (
           <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-bold">
             Team {teamNumber}
@@ -33,7 +33,7 @@ export function RegistrationButton({
             href={`/draw/${tournamentId}`}
             className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-bold hover:bg-primary/30 transition-colors"
           >
-            Rút số ngay
+            Draw number now
           </Link>
         )}
       </div>
@@ -46,7 +46,7 @@ export function RegistrationButton({
       className="w-full bg-primary hover:bg-blue-600 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20"
     >
       <span className="material-symbols-outlined">how_to_reg</span>
-      Đăng ký & Rút số
+      Register & Draw
     </Link>
   );
 }

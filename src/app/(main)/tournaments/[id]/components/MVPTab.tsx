@@ -53,7 +53,7 @@ export async function MVPTab({ tournamentId }: MVPTabProps) {
           <span className="material-symbols-outlined text-4xl text-gray-500 mb-2">
             leaderboard
           </span>
-          <p className="text-gray-400">Xếp hạng sẽ hiển thị sau khi giải đấu kết thúc</p>
+          <p className="text-gray-400">Rankings will be displayed after the tournament ends</p>
         </div>
       </div>
     );

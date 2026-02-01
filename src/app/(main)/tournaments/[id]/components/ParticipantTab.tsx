@@ -12,7 +12,7 @@ export async function ParticipantTab({ tournamentId }: ParticipantTabProps) {
     return (
       <div className="px-6 pb-8">
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
-          <p className="text-red-400">Không thể tải danh sách: {error}</p>
+          <p className="text-red-400">Could not load list: {error}</p>
         </div>
       </div>
     );
@@ -32,7 +32,7 @@ export async function ParticipantTab({ tournamentId }: ParticipantTabProps) {
           <span className="material-symbols-outlined text-4xl text-gray-500 mb-2">
             person_off
           </span>
-          <p className="text-gray-400">Chưa có người đăng ký</p>
+          <p className="text-gray-400">No participants yet</p>
         </div>
       ) : (
         participantList.map((participant) => {
@@ -61,7 +61,7 @@ export async function ParticipantTab({ tournamentId }: ParticipantTabProps) {
               {/* Team Badge */}
               <div className={`px-3 py-1.5 rounded-full ${colors.bg} border ${colors.border} flex-shrink-0`}>
                 <span className={`${colors.text} text-sm font-bold`}>
-                  {hasTeam ? `Team ${participant.team_number}` : "Chưa có team"}
+                  {hasTeam ? `Team ${participant.team_number}` : "No team"}
                 </span>
               </div>
             </div>

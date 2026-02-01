@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { HamburgerMenu } from "./hamburger-menu";
 import { getUserAchievements, getUserAchievementStats } from "@/lib/actions/achievement";
+import { getUpcomingMatches } from "@/lib/actions/match";
 import { AchievementCard } from "./achievement-card";
+import { UpcomingMatchCard } from "./upcoming-match-card";
+import { BottomNav } from "@/components/BottomNav";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -15,12 +17,36 @@ export default async function DashboardPage() {
     redirect("/auth/login");
   }
 
+  // Fetch profile for gender
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("gender")
+    .eq("id", user.id)
+    .single();
+
   const nickname = user.user_metadata?.nickname || user.email?.split("@")[0] || "Player";
   const email = user.email || "";
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+  const gender = profile?.gender || "other";
+
+  // Default avatar based on gender
+  const getDefaultAvatar = (gender: string) => {
+    switch (gender) {
+      case "male":
+        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4";
+      case "female":
+        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Lily&backgroundColor=ffdfbf";
+      default:
+        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Milo&backgroundColor=c0aede";
+    }
+  };
 
   // Fetch achievements
   const { data: achievements } = await getUserAchievements();
   const stats = await getUserAchievementStats();
+
+  // Fetch upcoming matches
+  const { data: upcomingMatches } = await getUpcomingMatches(5);
 
   return (
     <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col px-6 py-8">
@@ -53,14 +79,14 @@ export default async function DashboardPage() {
       {/* Profile Section */}
       <div className="relative z-10 flex flex-col items-center mb-8">
         <div className="relative mb-4">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-blue-800 p-[2px] shadow-lg shadow-primary/30">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-blue-800 p-[2px] shadow-lg shadow-primary/30">
             <img
               alt="Avatar"
-              className="w-full h-full object-cover rounded-2xl border-2 border-background-dark"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh_UvfV3t4T7nVgW1i337iKMut7MmTAg-YPnLTAJDdWqcRY1_XMoQLOH_BoSWtr31cX_CHM_ZdHyM5T2fXtkAPPGLZvSPCRk0H8BHn4xxHwWb5ghWc7MZiwteGdPCKxJ9Q1-0fuFuzEexkKbYhIt9VaqaZjw1DrubACsyfd07oXOJ8pSyHhg0hxu9c3cL6mcqjdRxpFMXIff2Do1KoZDPQapJSzUTkNK9aJyRGQgi9Xix7HIE4rKmIML-_tdr4MtSExmbRMZAtMkA"
+              className="w-full h-full object-cover rounded-full border-2 border-background-dark"
+              src={avatarUrl || getDefaultAvatar(gender)}
             />
           </div>
-  </div>
+        </div>
         <h1 className="text-2xl font-bold tracking-tight text-white mb-0.5">
           {nickname}
         </h1>
@@ -74,7 +100,7 @@ export default async function DashboardPage() {
         <div className="bg-card-dark/50 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col items-center text-center">
           <span className="text-2xl font-bold text-white mb-1">{stats.totalAchievements}</span>
           <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
-            Thành tích
+            Achievements
           </span>
         </div>
         <div className="bg-gradient-to-b from-navy-deep to-card-dark border border-gold-accent/20 rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
@@ -86,7 +112,7 @@ export default async function DashboardPage() {
             {stats.championshipCount}
           </span>
           <span className="text-[10px] uppercase tracking-wider text-gold-accent/80 font-semibold mt-1">
-            Vô địch
+            Champion
           </span>
         </div>
         <div className="bg-card-dark/50 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col items-center text-center">
@@ -101,11 +127,11 @@ export default async function DashboardPage() {
       <div className="relative z-10 mb-8">
         <div className="flex items-center justify-between mb-4 px-1">
           <h3 className="text-sm font-bold uppercase tracking-wider text-white">
-            Thành tích gần đây
+            Recent Achievements
           </h3>
           {achievements && achievements.length > 5 && (
             <button className="text-primary text-xs font-semibold hover:text-blue-400">
-              Xem tất cả
+              View all
             </button>
           )}
         </div>
@@ -119,9 +145,9 @@ export default async function DashboardPage() {
               <span className="material-symbols-outlined text-4xl text-gray-600 mb-2">
                 emoji_events
               </span>
-              <p className="text-sm text-gray-500">Chưa có thành tích nào</p>
+              <p className="text-sm text-gray-500">No achievements yet</p>
               <p className="text-xs text-gray-600 mt-1">
-                Tham gia giải đấu để nhận danh hiệu
+                Join tournaments to earn titles
               </p>
             </div>
           )}
@@ -136,93 +162,25 @@ export default async function DashboardPage() {
           </h3>
         </div>
         <div className="space-y-3">
-          <div className="bg-navy-deep/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center justify-between">
-            <div className="flex flex-col items-center gap-1 min-w-[3rem]">
-              <span className="text-xs font-bold text-gray-400">OCT</span>
-              <span className="text-xl font-bold text-white">24</span>
-            </div>
-            <div className="h-8 w-[1px] bg-white/10 mx-4"></div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-bold text-white">
-                  vs. M. Rashid
-                </span>
-                <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded uppercase font-bold">
-                  League
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="material-symbols-outlined text-[14px]">
-                  location_on
-                </span>
-                Center Court, Arena 1
-              </div>
-            </div>
-            <button className="ml-2 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors">
-              <span className="material-symbols-outlined text-gray-400 text-sm">
-                arrow_forward_ios
+          {upcomingMatches && upcomingMatches.length > 0 ? (
+            upcomingMatches.map((match) => (
+              <UpcomingMatchCard key={match.id} match={match} />
+            ))
+          ) : (
+            <div className="text-center py-8">
+              <span className="material-symbols-outlined text-4xl text-gray-600 block mb-2">
+                sports_tennis
               </span>
-            </button>
-          </div>
-          <div className="bg-navy-deep/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center justify-between">
-            <div className="flex flex-col items-center gap-1 min-w-[3rem]">
-              <span className="text-xs font-bold text-gray-400">NOV</span>
-              <span className="text-xl font-bold text-white">02</span>
+              <p className="text-sm text-gray-500">No upcoming matches</p>
+              <p className="text-xs text-gray-600 mt-1">
+                Register for tournaments to start competing
+              </p>
             </div>
-            <div className="h-8 w-[1px] bg-white/10 mx-4"></div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-bold text-white">
-                  vs. K. Momota
-                </span>
-                <span className="text-[10px] bg-gold-accent/20 text-gold-accent px-2 py-0.5 rounded uppercase font-bold">
-                  Finals
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="material-symbols-outlined text-[14px]">
-                  location_on
-                </span>
-                Tokyo Gymnasium
-              </div>
-            </div>
-            <button className="ml-2 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors">
-              <span className="material-symbols-outlined text-gray-400 text-sm">
-                arrow_forward_ios
-              </span>
-            </button>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="relative z-20 mt-auto pt-6">
-        <div className="bg-card-dark/80 backdrop-blur-lg border border-white/5 rounded-2xl p-2 flex justify-between items-center px-6">
-          <button className="flex flex-col items-center gap-1 p-2 text-primary">
-            <span className="material-symbols-outlined text-2xl">grid_view</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-2xl">
-              calendar_month
-            </span>
-          </button>
-          <div className="relative -top-8">
-            <Link href="/tournaments" className="size-14 rounded-full bg-primary shadow-lg shadow-primary/40 border-4 border-background-dark flex items-center justify-center text-white">
-              <span className="material-symbols-outlined text-3xl">
-                sports_tennis
-              </span>
-            </Link>
-          </div>
-          <button className="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-2xl">
-              leaderboard
-            </span>
-          </button>
-          <button className="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-2xl">person</span>
-          </button>
-        </div>
-      </div>
+      <BottomNav />
     </div>
   );
 }

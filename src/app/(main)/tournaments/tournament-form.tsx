@@ -144,7 +144,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
           <DatePicker
             name="start_date"
             control={control}
-            placeholder="Chọn ngày bắt đầu"
+            placeholder="Select start date"
             error={!!errors.start_date}
           />
           {errors.start_date && (
@@ -163,7 +163,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
           <DatePicker
             name="end_date"
             control={control}
-            placeholder="Chọn ngày kết thúc"
+            placeholder="Select end date"
             error={!!errors.end_date}
           />
           {errors.end_date && (
@@ -183,7 +183,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
         <DatePicker
           name="registration_deadline"
           control={control}
-          placeholder="Chọn hạn đăng ký"
+          placeholder="Select deadline"
           error={!!errors.registration_deadline}
         />
         {errors.registration_deadline && (
@@ -229,9 +229,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
           <label
             className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
             htmlFor="max_participants"
-          >
-            Số người
-          </label>
+          >Participants</label>
           <input
             className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${
               errors.max_participants
@@ -254,9 +252,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
           <label
             className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
             htmlFor="team_size"
-          >
-            Loại
-          </label>
+          >Type</label>
           <select
             className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm appearance-none cursor-pointer ${
               errors.team_size
@@ -266,8 +262,8 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
             id="team_size"
             {...register("team_size")}
           >
-            <option value={1}>Đơn</option>
-            <option value={2}>Đôi</option>
+            <option value={1}>Singles</option>
+            <option value={2}>Doubles</option>
           </select>
           {errors.team_size && (
             <p className="text-red-400 text-xs ml-1">{errors.team_size.message}</p>
@@ -279,9 +275,7 @@ export function TournamentForm({ tournament, mode, existingTiers }: TournamentFo
           <label
             className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
             htmlFor="entry_fee"
-          >
-            Phí (VND)
-          </label>
+          >Fee (VND)</label>
           <input
             className={`w-full bg-navy-deep/50 border rounded-xl py-4 px-4 text-white focus:outline-none transition-all backdrop-blur-sm ${
               errors.entry_fee

@@ -17,7 +17,7 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
     return (
       <div className="px-6 pb-8">
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-center">
-          <p className="text-red-400">Không thể tải danh sách: {error}</p>
+          <p className="text-red-400">Could not load list: {error}</p>
         </div>
       </div>
     );
@@ -40,7 +40,7 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
           <span className="material-symbols-outlined text-4xl text-gray-500 mb-2">
             group_off
           </span>
-          <p className="text-gray-400">Chưa có team nào</p>
+          <p className="text-gray-400">No teams yet</p>
         </div>
       ) : (
         teamList.map((team) => {
@@ -60,8 +60,8 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
                 <div className="flex-1">
                   <h3 className="text-white font-bold">Team {team.team_number}</h3>
                   <p className="text-xs text-gray-400">
-                    {members.length} thành viên
-                    {team.is_full && " • Đủ người"}
+                    {members.length} members
+                    {team.is_full && " • Full"}
                   </p>
                 </div>
               </div>
@@ -73,7 +73,7 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
                     <span className="material-symbols-outlined text-2xl text-gray-600 mb-1">
                       person_add
                     </span>
-                    <p className="text-sm text-gray-500">Chưa có thành viên</p>
+                    <p className="text-sm text-gray-500">No members yet</p>
                   </div>
                 ) : (
                   <div className="space-y-3">

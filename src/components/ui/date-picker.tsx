@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format, parse } from "date-fns";
-import { vi } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 
@@ -24,7 +24,7 @@ interface DatePickerProps<T extends FieldValues> {
 export function DatePicker<T extends FieldValues>({
   name,
   control,
-  placeholder = "Chọn ngày",
+  placeholder = "Select date",
   error,
 }: DatePickerProps<T>) {
   const [open, setOpen] = React.useState(false);
@@ -54,7 +54,7 @@ export function DatePicker<T extends FieldValues>({
               >
                 <span>
                   {field.value
-                    ? format(dateValue!, "dd/MM/yyyy", { locale: vi })
+                    ? format(dateValue!, "MM/dd/yyyy", { locale: enUS })
                     : placeholder}
                 </span>
                 <CalendarIcon className="h-5 w-5 text-gray-500" />

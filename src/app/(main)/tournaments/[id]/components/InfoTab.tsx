@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Tournament } from "@/types/database";
 import { DeleteTournamentButton } from "../delete-button";
 import { RegistrationButton } from "./RegistrationButton";
+import { ResetTournamentButton } from "./ResetTournamentButton";
 
 interface InfoTabProps {
   tournament: Tournament;
@@ -12,7 +13,7 @@ interface InfoTabProps {
 
 export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoTabProps) {
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("vi-VN", {
+    return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -77,7 +78,7 @@ export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoT
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wider">Entry Fee</p>
               <p className="text-white font-medium">
-                {tournament.entry_fee.toLocaleString("vi-VN")} VND
+                {tournament.entry_fee.toLocaleString("en-US")} VND
               </p>
             </div>
           </div>
@@ -124,16 +125,19 @@ export function InfoTab({ tournament, isRegistered, teamNumber, isOwner }: InfoT
         />
 
         {isOwner && (
-          <div className="flex gap-3">
-            <Link
-              href={`/tournaments/${tournament.id}/edit`}
-              className="flex-1 bg-card-dark hover:bg-card-dark/80 border border-white/10 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
-            >
-              <span className="material-symbols-outlined text-xl">edit</span>
-              Edit
-            </Link>
-            <DeleteTournamentButton id={tournament.id} />
-          </div>
+          <>
+            <div className="flex gap-3">
+              <Link
+                href={`/tournaments/${tournament.id}/edit`}
+                className="flex-1 bg-card-dark hover:bg-card-dark/80 border border-white/10 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+              >
+                <span className="material-symbols-outlined text-xl">edit</span>
+                Edit
+              </Link>
+              <DeleteTournamentButton id={tournament.id} />
+            </div>
+            <ResetTournamentButton tournamentId={tournament.id} />
+          </>
         )}
       </div>
     </div>

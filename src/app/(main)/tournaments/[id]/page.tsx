@@ -9,6 +9,7 @@ import { ParticipantTab } from "./components/ParticipantTab";
 import { TeamTab } from "./components/TeamTab";
 import { MatchTab } from "./components/MatchTab";
 import { MVPTab } from "./components/MVPTab";
+import { BottomNav } from "@/components/BottomNav";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -40,7 +41,7 @@ export default async function TournamentDetailPage({ params }: PageProps) {
     <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col">
       <TournamentHeader tournament={tournament} />
 
-      <div className="relative z-10 flex-1 -mt-8">
+      <div className="relative z-10 flex-1 -mt-8 pb-24">
         <TabGroup tabs={TABS} defaultTab="info">
           <InfoTab
             tournament={tournament}
@@ -54,6 +55,8 @@ export default async function TournamentDetailPage({ params }: PageProps) {
           <MVPTab tournamentId={id} />
         </TabGroup>
       </div>
+
+      <BottomNav />
     </div>
   );
 }

@@ -5,7 +5,7 @@ interface AchievementCardProps {
 }
 
 export function AchievementCard({ achievement }: AchievementCardProps) {
-  const formattedDate = new Date(achievement.earned_at).toLocaleDateString("vi-VN", {
+  const formattedDate = new Date(achievement.earned_at).toLocaleDateString("en-US", {
     month: "short",
     year: "numeric",
   });

@@ -297,6 +297,104 @@ export async function resetTournamentTeams(id: string): Promise<TournamentResult
   return { success: "Tournament teams and participants have been reset" };
 }
 
+export async function resetTournament(id: string): Promise<TournamentResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "You must be logged in to reset tournament" };
+  }
+
+  // Check if user is the organizer
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("organizer_id, max_participants, team_size")
+    .eq("id", id)
+    .single();
+
+  if (tournament?.organizer_id !== user.id) {
+    return { error: "You can only reset tournaments you created" };
+  }
+
+  // Delete all matches first
+  const { error: matchesError } = await supabase
+    .from("tournament_matches")
+    .delete()
+    .eq("tournament_id", id);
+
+  if (matchesError) {
+    return { error: matchesError.message };
+  }
+
+  // Delete all rankings
+  const { error: rankingsError } = await supabase
+    .from("tournament_rankings")
+    .delete()
+    .eq("tournament_id", id);
+
+  if (rankingsError) {
+    return { error: rankingsError.message };
+  }
+
+  // Delete all participants
+  const { error: participantsError } = await supabase
+    .from("tournament_participants")
+    .delete()
+    .eq("tournament_id", id);
+
+  if (participantsError) {
+    return { error: participantsError.message };
+  }
+
+  // Delete all existing teams
+  const { error: teamsDeleteError } = await supabase
+    .from("tournament_teams")
+    .delete()
+    .eq("tournament_id", id);
+
+  if (teamsDeleteError) {
+    return { error: teamsDeleteError.message };
+  }
+
+  // Recreate teams based on max_participants and team_size
+  const numTeams = Math.floor(tournament.max_participants / (tournament.team_size || 2));
+  const teamsToInsert = Array.from({ length: numTeams }, (_, i) => ({
+    tournament_id: id,
+    team_number: i + 1,
+    is_full: false,
+  }));
+
+  const { error: teamsInsertError } = await supabase
+    .from("tournament_teams")
+    .insert(teamsToInsert);
+
+  if (teamsInsertError) {
+    return { error: teamsInsertError.message };
+  }
+
+  // Reset tournament state
+  const { error: updateError } = await supabase
+    .from("tournaments")
+    .update({
+      current_participants: 0,
+      status: "upcoming",
+      bracket_generated: false,
+      current_wb_round: 1,
+      current_lb_round: 1,
+    })
+    .eq("id", id);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath(`/tournaments/${id}`);
+  return { success: "Tournament has been completely reset" };
+}
+
 export async function isOrganizer(tournamentId: string): Promise<boolean> {
   const supabase = await createClient();
 

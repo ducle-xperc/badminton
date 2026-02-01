@@ -19,7 +19,7 @@ export async function getProfile(): Promise<ProfileResult> {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Bạn cần đăng nhập" };
+    return { error: "You need to login" };
   }
 
   const { data, error } = await supabase
@@ -61,7 +61,7 @@ export async function updateProfile(input: ProfileInput): Promise<ProfileResult>
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Bạn cần đăng nhập" };
+    return { error: "You need to login" };
   }
 
   // Check if nickname is taken by another user
@@ -74,7 +74,7 @@ export async function updateProfile(input: ProfileInput): Promise<ProfileResult>
       .single();
 
     if (existingProfile) {
-      return { error: "Nickname đã được sử dụng" };
+      return { error: "Nickname already in use" };
     }
   }
 

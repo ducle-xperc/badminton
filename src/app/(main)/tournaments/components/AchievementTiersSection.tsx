@@ -39,13 +39,13 @@ export function AchievementTiersSection({ control, register }: AchievementTiersS
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-300">Danh hiệu giải đấu</h3>
+        <h3 className="text-sm font-medium text-gray-300">Tournament Achievements</h3>
         <button
           type="button"
           onClick={handleUseDefaults}
           className="text-xs px-3 py-1.5 bg-gold-accent/20 text-gold-accent rounded-lg hover:bg-gold-accent/30 transition-colors"
         >
-          Dùng mặc định
+          Use defaults
         </button>
       </div>
 
@@ -54,13 +54,13 @@ export function AchievementTiersSection({ control, register }: AchievementTiersS
           <span className="material-symbols-outlined text-3xl text-gray-500 mb-2">
             emoji_events
           </span>
-          <p className="text-sm text-gray-500">Chưa có danh hiệu nào</p>
+          <p className="text-sm text-gray-500">No achievements yet</p>
           <button
             type="button"
             onClick={handleUseDefaults}
             className="mt-3 text-sm text-gold-accent hover:underline"
           >
-            Thêm danh hiệu mặc định
+            Add default achievements
           </button>
         </div>
       ) : (
@@ -86,10 +86,10 @@ export function AchievementTiersSection({ control, register }: AchievementTiersS
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">
-                      {field.title || "Chưa đặt tên"}
+                      {field.title || "Untitled"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Hạng {field.min_position} - {field.max_position}
+                      Position {field.min_position} - {field.max_position}
                     </p>
                   </div>
                 </div>
@@ -107,12 +107,12 @@ export function AchievementTiersSection({ control, register }: AchievementTiersS
                 {/* Row 1: Title */}
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                    Tên danh hiệu
+                    Achievement title
                   </label>
                   <input
                     type="text"
                     {...register(`achievement_tiers.${index}.title`)}
-                    placeholder="Nhà Vô Địch"
+                    placeholder="Champion"
                     className="w-full px-3 py-2.5 text-sm bg-dark-bg border border-white/10 rounded-lg text-white placeholder:text-gray-600 focus:border-gold-accent focus:outline-none"
                   />
                 </div>
@@ -120,7 +120,7 @@ export function AchievementTiersSection({ control, register }: AchievementTiersS
                 {/* Row 2: Position range */}
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                    Phạm vi thứ hạng
+                    Position range
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
@@ -128,17 +128,17 @@ export function AchievementTiersSection({ control, register }: AchievementTiersS
                         type="number"
                         min={1}
                         {...register(`achievement_tiers.${index}.min_position`, { valueAsNumber: true })}
-                        placeholder="Từ"
+                        placeholder="From"
                         className="w-full px-3 py-2.5 text-sm bg-dark-bg border border-white/10 rounded-lg text-white focus:border-gold-accent focus:outline-none"
                       />
                     </div>
-                    <span className="text-gray-500 text-sm">đến</span>
+                    <span className="text-gray-500 text-sm">to</span>
                     <div className="flex-1">
                       <input
                         type="number"
                         min={1}
                         {...register(`achievement_tiers.${index}.max_position`, { valueAsNumber: true })}
-                        placeholder="Đến"
+                        placeholder="To"
                         className="w-full px-3 py-2.5 text-sm bg-dark-bg border border-white/10 rounded-lg text-white focus:border-gold-accent focus:outline-none"
                       />
                     </div>
@@ -161,7 +161,7 @@ export function AchievementTiersSection({ control, register }: AchievementTiersS
         className="w-full py-2 border border-dashed border-white/10 rounded-xl text-sm text-gray-400 hover:text-white hover:border-white/20 transition-colors flex items-center justify-center gap-2"
       >
         <span className="material-symbols-outlined text-lg">add</span>
-        Thêm danh hiệu
+        Add achievement
       </button>
     </div>
   );

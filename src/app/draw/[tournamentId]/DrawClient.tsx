@@ -134,19 +134,19 @@ export function DrawClient({
               />
               <span className="text-primary text-xs font-bold uppercase tracking-wider">
                 {isSpinning
-                  ? "Đang quay..."
+                  ? "Spinning..."
                   : hasDrawn
-                    ? "Đã rút số"
-                    : "Sẵn sàng"}
+                    ? "Already drawn"
+                    : "Ready"}
               </span>
             </div>
             <h1 className="text-white tracking-tight text-[32px] font-bold leading-tight">
-              {hasDrawn ? "Số Team Của Bạn" : "Rút Số May Mắn"}
+              {hasDrawn ? "Your Team Number" : "Lucky Draw"}
             </h1>
             <p className="text-slate-400 text-sm mt-1">
               {hasDrawn
-                ? "Bạn đã được xếp vào team!"
-                : "Nhấn để rút số team"}
+                ? "You've been assigned to a team!"
+                : "Click to draw team number"}
             </p>
           </div>
 
@@ -196,13 +196,13 @@ export function DrawClient({
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
-                      Trạng thái
+                      Status
                     </span>
                     <span className="text-sm font-bold text-green-500 flex items-center gap-1">
                       <span className="material-symbols-outlined text-[14px]">
                         check_circle
                       </span>
-                      Đã xếp team
+                      Team assigned
                     </span>
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export function DrawClient({
                 cached
               </span>
               <span className="text-lg font-bold tracking-wider">
-                {isSpinning ? "ĐANG QUAY..." : "RÚT SỐ NGAY"}
+                {isSpinning ? "SPINNING..." : "DRAW NOW"}
               </span>
             </button>
           ) : hasDrawn ? (
@@ -245,7 +245,7 @@ export function DrawClient({
                 sports
               </span>
               <span className="text-lg font-bold tracking-wider">
-                XEM GIẢI ĐẤU
+                VIEW TOURNAMENT
               </span>
             </Link>
           ) : (
@@ -257,7 +257,7 @@ export function DrawClient({
                 block
               </span>
               <span className="text-lg font-bold tracking-wider">
-                HẾT SLOT
+                NO SLOTS
               </span>
             </button>
           )}

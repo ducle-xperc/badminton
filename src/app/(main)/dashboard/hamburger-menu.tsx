@@ -43,7 +43,7 @@ export function HamburgerMenu() {
             className="w-full px-4 py-3 flex items-center gap-3 text-gray-300 hover:bg-white/5 transition-colors"
           >
             <span className="material-symbols-outlined text-lg">person</span>
-            <span className="text-sm font-medium">Hồ sơ</span>
+            <span className="text-sm font-medium">Profile</span>
           </Link>
           <div className="border-t border-white/5"></div>
           <button
@@ -51,7 +51,7 @@ export function HamburgerMenu() {
             className="w-full px-4 py-3 flex items-center gap-3 text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <span className="material-symbols-outlined text-lg">logout</span>
-            <span className="text-sm font-medium">Đăng xuất</span>
+            <span className="text-sm font-medium">Sign out</span>
           </button>
         </div>
       )}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTournaments } from "@/lib/actions/tournament";
 import type { Tournament } from "@/types/database";
+import { BottomNav } from "@/components/BottomNav";
 
 export default async function TournamentsPage() {
   const { data: tournaments } = await getTournaments();
@@ -153,7 +154,7 @@ export default async function TournamentsPage() {
                   </span>
                   {tournament.entry_fee > 0 && (
                     <span className="px-2 py-0.5 rounded bg-gold-accent/20 border border-gold-accent/30 text-gold-accent text-[10px] font-bold uppercase backdrop-blur-sm">
-                      {tournament.entry_fee.toLocaleString("vi-VN")}đ
+                      {tournament.entry_fee.toLocaleString("en-US")} VND
                     </span>
                   )}
                 </div>
@@ -200,44 +201,7 @@ export default async function TournamentsPage() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="absolute bottom-0 left-0 w-full z-20 pb-6 pt-4 bg-gradient-to-t from-navy-deep via-navy-deep to-transparent">
-        <div className="mx-6 bg-card-dark/80 backdrop-blur-xl border border-white/5 rounded-2xl p-2 flex justify-between items-center px-4 shadow-2xl shadow-black/50">
-          <Link
-            href="/dashboard"
-            className="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors w-12 group"
-          >
-            <span className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
-              grid_view
-            </span>
-          </Link>
-          <button className="flex flex-col items-center gap-1 p-2 text-primary w-12 group">
-            <span className="material-symbols-outlined text-2xl fill-1 group-hover:scale-105 transition-transform">
-              emoji_events
-            </span>
-          </button>
-          <div className="relative -top-8">
-            <Link
-              href="/tournaments/new"
-              className="size-14 rounded-full bg-primary shadow-lg shadow-primary/40 border-4 border-background-dark flex items-center justify-center text-white group"
-            >
-              <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">
-                add
-              </span>
-            </Link>
-          </div>
-          <button className="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors w-12 group">
-            <span className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
-              leaderboard
-            </span>
-          </button>
-          <button className="flex flex-col items-center gap-1 p-2 text-gray-500 hover:text-white transition-colors w-12 group">
-            <span className="material-symbols-outlined text-2xl group-hover:scale-105 transition-transform">
-              person
-            </span>
-          </button>
-        </div>
-      </div>
+      <BottomNav centerAction={{ icon: "add", href: "/tournaments/new" }} />
     </div>
   );
 }

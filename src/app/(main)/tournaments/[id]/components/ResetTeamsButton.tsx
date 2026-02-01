@@ -27,20 +27,20 @@ export function ResetTeamsButton({ tournamentId }: ResetTeamsButtonProps) {
   if (showConfirm) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-red-400">Xác nhận reset?</span>
+        <span className="text-sm text-red-400">Confirm reset?</span>
         <button
           onClick={handleReset}
           disabled={isLoading}
           className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
         >
-          {isLoading ? "Đang xử lý..." : "Xác nhận"}
+          {isLoading ? "Processing..." : "Confirm"}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
           disabled={isLoading}
           className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
         >
-          Hủy
+          Cancel
         </button>
       </div>
     );

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { profileSchema, type ProfileInput } from "@/lib/validations/profile";
 import { getProfile, updateProfile } from "@/lib/actions/profile";
 import type { Profile } from "@/types/database";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function ProfilePage() {
   const [serverError, setServerError] = useState<string | null>(null);
@@ -46,20 +47,20 @@ export default function ProfilePage() {
     if (result?.error) {
       setServerError(result.error);
     } else if (result?.success) {
-      setSuccessMessage("Cập nhật thành công!");
+      setSuccessMessage("Updated successfully!");
     }
   };
 
   if (loading) {
     return (
       <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex items-center justify-center">
-        <div className="text-gray-400">Đang tải...</div>
+        <div className="text-gray-400">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col text-white">
+    <div className="relative mx-auto min-h-screen max-w-[480px] w-full bg-background-dark overflow-hidden flex flex-col text-white">
       {/* Background Decorations */}
       <div className="absolute inset-0 pointer-events-none opacity-10">
         <div className="absolute top-1/4 left-0 w-full h-[2px] court-line"></div>
@@ -67,11 +68,6 @@ export default function ProfilePage() {
         <div className="absolute left-1/2 top-0 w-[2px] h-full court-line -translate-x-1/2"></div>
         <div className="absolute -top-20 -right-20 w-64 h-64 border border-gold-accent/20 rounded-full"></div>
         <div className="absolute -bottom-10 -left-10 w-48 h-48 border border-primary/20 rounded-full"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5">
-          <span className="material-symbols-outlined text-[300px]">
-            person
-          </span>
-        </div>
       </div>
 
       {/* Header */}
@@ -84,7 +80,7 @@ export default function ProfilePage() {
             arrow_back
           </span>
         </Link>
-        <h1 className="text-lg font-bold uppercase tracking-wider">Hồ Sơ</h1>
+        <h1 className="text-lg font-bold uppercase tracking-wider">Profile</h1>
         <div className="w-10"></div>
       </div>
 
@@ -123,18 +119,20 @@ export default function ProfilePage() {
             >
               Nickname
             </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+            <div
+              className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+                errors.nickname
+                  ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+                  : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+              }`}
+            >
+              <span className="material-symbols-outlined text-gray-500 text-xl">
                 alternate_email
               </span>
               <input
-                className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-                  errors.nickname
-                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                    : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-                }`}
+                className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
                 id="nickname"
-                placeholder="Nhập nickname của bạn"
+                placeholder="Enter your nickname"
                 type="text"
                 {...register("nickname")}
               />
@@ -152,35 +150,37 @@ export default function ProfilePage() {
               className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
               htmlFor="gender"
             >
-              Giới tính
+              Gender
             </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+            <div
+              className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+                errors.gender
+                  ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+                  : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+              }`}
+            >
+              <span className="material-symbols-outlined text-gray-500 text-xl">
                 wc
               </span>
               <select
-                className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none transition-all backdrop-blur-sm appearance-none cursor-pointer ${
-                  errors.gender
-                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                    : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-                }`}
+                className="flex-1 bg-transparent py-4 text-white focus:outline-none appearance-none cursor-pointer"
                 id="gender"
                 {...register("gender")}
               >
                 <option value="" className="bg-background-dark">
-                  Chọn giới tính
+                  Select gender
                 </option>
                 <option value="male" className="bg-background-dark">
-                  Nam
+                  Male
                 </option>
                 <option value="female" className="bg-background-dark">
-                  Nữ
+                  Female
                 </option>
                 <option value="other" className="bg-background-dark">
-                  Khác
+                  Other
                 </option>
               </select>
-              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl pointer-events-none">
+              <span className="material-symbols-outlined text-gray-500 text-xl pointer-events-none">
                 expand_more
               </span>
             </div>
@@ -196,21 +196,21 @@ export default function ProfilePage() {
             <label
               className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1"
               htmlFor="status"
+            >Status</label>
+            <div
+              className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+                errors.status
+                  ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+                  : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+              }`}
             >
-              Trạng thái
-            </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+              <span className="material-symbols-outlined text-gray-500 text-xl">
                 edit_note
               </span>
               <input
-                className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-                  errors.status
-                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                    : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-                }`}
+                className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
                 id="status"
-                placeholder="VD: Đang tìm đối, Sẵn sàng chiến..."
+                placeholder="e.g. Looking for partner, Ready to play..."
                 type="text"
                 {...register("status")}
               />
@@ -221,7 +221,7 @@ export default function ProfilePage() {
               </p>
             )}
             <p className="text-xs text-gray-500 ml-1">
-              Trạng thái sẽ hiển thị cho người khác
+              Status will be visible to others
             </p>
           </div>
 
@@ -233,7 +233,7 @@ export default function ProfilePage() {
               disabled={isSubmitting}
             >
               <span className="relative z-10">
-                {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+                {isSubmitting ? "Saving..." : "Save changes"}
               </span>
               {!isSubmitting && (
                 <span className="material-symbols-outlined relative z-10 text-[24px] group-hover:translate-x-1 transition-transform">
@@ -254,6 +254,8 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <BottomNav />
     </div>
   );
 }

@@ -62,7 +62,7 @@ export async function registerForTournament(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Bạn cần đăng nhập để đăng ký" };
+    return { error: "You need to login to register" };
   }
 
   // Check if tournament exists and is valid
@@ -75,26 +75,26 @@ export async function registerForTournament(
     .single();
 
   if (!tournament) {
-    return { error: "Không tìm thấy giải đấu" };
+    return { error: "Tournament not found" };
   }
 
   if (tournament.status === "cancelled") {
-    return { error: "Giải đấu đã bị hủy" };
+    return { error: "Tournament cancelled" };
   }
 
   if (tournament.status !== "upcoming") {
-    return { error: "Giải đấu không còn mở đăng ký" };
+    return { error: "Tournament registration closed" };
   }
 
   if (tournament.current_participants >= tournament.max_participants) {
-    return { error: "Giải đấu đã đủ người" };
+    return { error: "Tournament is full" };
   }
 
   if (
     tournament.registration_deadline &&
     new Date(tournament.registration_deadline) < new Date()
   ) {
-    return { error: "Đã hết hạn đăng ký" };
+    return { error: "Registration deadline passed" };
   }
 
   // Insert participant (trigger updates current_participants)
@@ -110,7 +110,7 @@ export async function registerForTournament(
   if (error) {
     if (error.code === "23505") {
       // Unique violation
-      return { error: "Bạn đã đăng ký giải đấu này rồi" };
+      return { error: "You already registered for this tournament" };
     }
     return { error: error.message };
   }
@@ -167,7 +167,7 @@ export async function performDraw(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Bạn cần đăng nhập" };
+    return { error: "You need to login" };
   }
 
   // Check if user is registered
@@ -179,7 +179,7 @@ export async function performDraw(
     .single();
 
   if (!participant) {
-    return { error: "Bạn cần đăng ký trước" };
+    return { error: "You need to register first" };
   }
 
   // Check if already drawn
@@ -188,7 +188,7 @@ export async function performDraw(
       data: {
         success: true,
         team_number: participant.team_number,
-        error: "Bạn đã được xếp vào team rồi",
+        error: "You've already been assigned to a team",
       },
     };
   }
@@ -201,7 +201,7 @@ export async function performDraw(
     .eq("is_full", false);
 
   if (teamsError || !availableTeams || availableTeams.length === 0) {
-    return { error: "Không còn team trống" };
+    return { error: "No empty teams available" };
   }
 
   // Cryptographically secure random selection

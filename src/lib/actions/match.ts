@@ -41,12 +41,6 @@ export type GenerateResult = {
 // HELPER FUNCTIONS
 // ============================================
 
-function nextPowerOf2(n: number): number {
-  let power = 1;
-  while (power < n) power *= 2;
-  return power;
-}
-
 // Fisher-Yates shuffle with crypto.randomInt
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -149,7 +143,7 @@ export async function generateFirstRound(
   // Verify user is organizer
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Bạn cần đăng nhập" };
+    return { error: "You need to login" };
   }
 
   const { data: tournament } = await supabase
@@ -159,40 +153,38 @@ export async function generateFirstRound(
     .single();
 
   if (tournament?.organizer_id !== user.id) {
-    return { error: "Chỉ BTC mới có thể sắp xếp trận đấu" };
+    return { error: "Only organizers can arrange matches" };
   }
 
   if (tournament?.bracket_generated) {
-    return { error: "Bracket đã được tạo rồi" };
+    return { error: "Bracket already created" };
   }
 
   if (tournament?.status === "completed") {
-    return { error: "Giải đấu đã kết thúc" };
+    return { error: "Tournament has ended" };
   }
 
-  // Get all full teams
+  // Get all teams (including partial/empty teams)
   const { data: teams } = await supabase
     .from("tournament_teams")
     .select("team_number")
     .eq("tournament_id", tournamentId)
-    .eq("is_full", true)
     .order("team_number", { ascending: true });
 
   if (!teams || teams.length < 2) {
-    return { error: "Cần ít nhất 2 đội đủ người để sắp xếp trận đấu" };
+    return { error: "Need at least 2 teams to arrange matches" };
   }
 
   const teamNumbers = teams.map((t) => t.team_number);
   const teamCount = teamNumbers.length;
-  const targetSize = nextPowerOf2(teamCount);
-  const byeCount = targetSize - teamCount;
 
   // Shuffle teams for random pairing
   const shuffledTeams = shuffleArray(teamNumbers);
 
-  // Teams getting byes (first byeCount teams advance automatically to WB Round 2)
-  const byeTeams = shuffledTeams.slice(0, byeCount);
-  const playingTeams = shuffledTeams.slice(byeCount);
+  // NEW: All teams play in Round 1, only 1 bye if odd number
+  const isOdd = teamCount % 2 === 1;
+  const byeTeam = isOdd ? shuffledTeams[shuffledTeams.length - 1] : null;
+  const playingTeams = isOdd ? shuffledTeams.slice(0, -1) : shuffledTeams;
 
   // Create WB Round 1 matches
   const matchesToInsert: TournamentMatchInsert[] = [];
@@ -203,13 +195,32 @@ export async function generateFirstRound(
       round: 1,
       match_number: Math.floor(i / 2) + 1,
       team1_number: playingTeams[i],
-      team2_number: playingTeams[i + 1] ?? null,
+      team2_number: playingTeams[i + 1],
       team1_score: null,
       team2_score: null,
       winner_team_number: null,
       scheduled_at: null,
       court: null,
       status: "upcoming",
+      is_reset_match: false,
+    });
+  }
+
+  // If odd number, create a bye match (team auto-advances)
+  if (byeTeam !== null) {
+    matchesToInsert.push({
+      tournament_id: tournamentId,
+      bracket: "winners",
+      round: 1,
+      match_number: Math.floor(playingTeams.length / 2) + 1,
+      team1_number: byeTeam,
+      team2_number: null,
+      team1_score: null,
+      team2_score: null,
+      winner_team_number: byeTeam,
+      scheduled_at: null,
+      court: null,
+      status: "completed",
       is_reset_match: false,
     });
   }
@@ -236,12 +247,12 @@ export async function generateFirstRound(
 
   revalidatePath(`/tournaments/${tournamentId}`);
 
-  const byeMessage = byeCount > 0
-    ? ` (${byeCount} đội được bye: Team ${byeTeams.join(", ")})`
+  const byeMessage = byeTeam !== null
+    ? ` (Team ${byeTeam} gets bye)`
     : "";
 
   return {
-    success: `Đã tạo ${matchesToInsert.length} trận đấu cho Winners Bracket Round 1${byeMessage}`,
+    success: `Created ${matchesToInsert.length} matches for Winners Bracket Round 1${byeMessage}`,
   };
 }
 
@@ -257,7 +268,7 @@ export async function generateNextRound(
   // Verify user is organizer
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Bạn cần đăng nhập" };
+    return { error: "You need to login" };
   }
 
   const { data: tournament } = await supabase
@@ -267,15 +278,15 @@ export async function generateNextRound(
     .single();
 
   if (tournament?.organizer_id !== user.id) {
-    return { error: "Chỉ BTC mới có thể tạo vòng tiếp theo" };
+    return { error: "Only organizers can create next round" };
   }
 
   if (!tournament?.bracket_generated) {
-    return { error: "Chưa tạo bracket. Hãy sắp xếp đội hình trước" };
+    return { error: "Bracket not created. Please arrange teams first" };
   }
 
   if (tournament?.status === "completed") {
-    return { error: "Giải đấu đã kết thúc" };
+    return { error: "Tournament has ended" };
   }
 
   // Get all matches
@@ -285,13 +296,13 @@ export async function generateNextRound(
     .eq("tournament_id", tournamentId);
 
   if (!allMatches) {
-    return { error: "Không tìm thấy trận đấu nào" };
+    return { error: "No matches found" };
   }
 
   // Check if there are pending matches
   const pendingMatches = allMatches.filter((m) => m.status !== "completed");
   if (pendingMatches.length > 0) {
-    return { error: `Còn ${pendingMatches.length} trận chưa hoàn thành` };
+    return { error: `${pendingMatches.length} matches still incomplete` };
   }
 
   // Get current state
@@ -305,37 +316,33 @@ export async function generateNextRound(
   const wbWinners = wbCurrentRoundMatches
     .filter((m) => m.winner_team_number !== null)
     .map((m) => m.winner_team_number as number);
+  // Get losers from WB (exclude bye matches where team2 is null)
   const wbLosers = wbCurrentRoundMatches
-    .filter((m) => m.winner_team_number !== null)
+    .filter((m) => m.winner_team_number !== null && m.team2_number !== null) // Exclude bye matches
     .map((m) =>
       m.team1_number === m.winner_team_number ? m.team2_number : m.team1_number
     )
     .filter((n): n is number => n !== null);
 
-  // Get bye teams (teams that didn't play in WB Round 1)
-  const { data: allTeams } = await supabase
-    .from("tournament_teams")
-    .select("team_number")
-    .eq("tournament_id", tournamentId)
-    .eq("is_full", true);
+  // Get bye teams (teams that didn't play in WB Round 1) - no longer needed with new logic
+  // With new logic, bye teams are already marked as completed matches with team2_number = null
+  const byeTeams: number[] = [];
 
-  const allTeamNumbers = allTeams?.map((t) => t.team_number) || [];
-  const teamsInMatches = new Set(
-    allMatches.flatMap((m) => [m.team1_number, m.team2_number].filter(Boolean))
-  );
-
-  // Bye teams are those who haven't played yet
-  const byeTeams = currentWBRound === 1
-    ? allTeamNumbers.filter((t) => !teamsInMatches.has(t))
-    : [];
-
-  // Get LB winners from current LB round
+  // Get LB winners from current LB round (exclude bye matches)
   const lbCurrentRoundMatches = allMatches.filter(
     (m) => m.bracket === "losers" && m.round === currentLBRound
   );
   const lbWinners = lbCurrentRoundMatches
-    .filter((m) => m.winner_team_number !== null)
+    .filter((m) => m.winner_team_number !== null && m.team2_number !== null) // Exclude bye matches
     .map((m) => m.winner_team_number as number);
+
+  // Get LB bye teams (they should also advance)
+  const lbByeWinners = lbCurrentRoundMatches
+    .filter((m) => m.winner_team_number !== null && m.team2_number === null) // Bye matches only
+    .map((m) => m.winner_team_number as number);
+
+  // Combine LB winners with LB bye winners
+  const allLBWinners = [...lbWinners, ...lbByeWinners];
 
   const matchesToInsert: TournamentMatchInsert[] = [];
   let nextWBRound = currentWBRound;
@@ -350,7 +357,7 @@ export async function generateNextRound(
   if (grandFinalCompleted) {
     // Check if reset match needed (LB champion won grand final)
     const lbChampWon = grandFinalCompleted.winner_team_number !== null &&
-      lbWinners.includes(grandFinalCompleted.winner_team_number);
+      allLBWinners.includes(grandFinalCompleted.winner_team_number);
 
     if (lbChampWon) {
       // Check if reset match exists
@@ -376,12 +383,12 @@ export async function generateNextRound(
           is_reset_match: true,
         });
       } else {
-        return { error: "Tất cả trận đấu đã hoàn thành. Hãy kết thúc giải đấu." };
+        return { error: "All matches completed. Please end tournament." };
       }
     } else {
-      return { error: "Tất cả trận đấu đã hoàn thành. Hãy kết thúc giải đấu." };
+      return { error: "All matches completed. Please end tournament." };
     }
-  } else if (!grandFinalExists && wbWinners.length === 1 && lbWinners.length === 1) {
+  } else if (!grandFinalExists && wbWinners.length === 1 && allLBWinners.length === 1) {
     // Create grand final
     matchesToInsert.push({
       tournament_id: tournamentId,
@@ -389,7 +396,7 @@ export async function generateNextRound(
       round: 1,
       match_number: 1,
       team1_number: wbWinners[0], // WB champion
-      team2_number: lbWinners[0], // LB champion
+      team2_number: allLBWinners[0], // LB champion
       team1_score: null,
       team2_score: null,
       winner_team_number: null,
@@ -403,52 +410,113 @@ export async function generateNextRound(
     const allWBTeamsForNextRound = [...wbWinners, ...byeTeams];
     if (allWBTeamsForNextRound.length >= 2) {
       nextWBRound = currentWBRound + 1;
-      for (let i = 0; i < allWBTeamsForNextRound.length; i += 2) {
-        if (allWBTeamsForNextRound[i + 1] !== undefined) {
-          matchesToInsert.push({
-            tournament_id: tournamentId,
-            bracket: "winners",
-            round: nextWBRound,
-            match_number: Math.floor(i / 2) + 1,
-            team1_number: allWBTeamsForNextRound[i],
-            team2_number: allWBTeamsForNextRound[i + 1],
-            team1_score: null,
-            team2_score: null,
-            winner_team_number: null,
-            scheduled_at: null,
-            court: null,
-            status: "upcoming",
-            is_reset_match: false,
-          });
-        }
+
+      // Handle bye for odd number of teams
+      const wbIsOdd = allWBTeamsForNextRound.length % 2 === 1;
+      let wbByeTeam: number | null = null;
+      let wbPlayingTeams = allWBTeamsForNextRound;
+
+      if (wbIsOdd) {
+        // Random team gets bye
+        const byeIndex = Math.floor(Math.random() * allWBTeamsForNextRound.length);
+        wbByeTeam = allWBTeamsForNextRound[byeIndex];
+        wbPlayingTeams = allWBTeamsForNextRound.filter((_, i) => i !== byeIndex);
+      }
+
+      // Create matches for playing teams
+      for (let i = 0; i < wbPlayingTeams.length; i += 2) {
+        matchesToInsert.push({
+          tournament_id: tournamentId,
+          bracket: "winners",
+          round: nextWBRound,
+          match_number: Math.floor(i / 2) + 1,
+          team1_number: wbPlayingTeams[i],
+          team2_number: wbPlayingTeams[i + 1],
+          team1_score: null,
+          team2_score: null,
+          winner_team_number: null,
+          scheduled_at: null,
+          court: null,
+          status: "upcoming",
+          is_reset_match: false,
+        });
+      }
+
+      // Create bye match if odd
+      if (wbByeTeam !== null) {
+        matchesToInsert.push({
+          tournament_id: tournamentId,
+          bracket: "winners",
+          round: nextWBRound,
+          match_number: Math.floor(wbPlayingTeams.length / 2) + 1,
+          team1_number: wbByeTeam,
+          team2_number: null,
+          team1_score: null,
+          team2_score: null,
+          winner_team_number: wbByeTeam,
+          scheduled_at: null,
+          court: null,
+          status: "completed",
+          is_reset_match: false,
+        });
       }
     }
 
     // Generate LB round
     // LB teams come from: previous LB winners + WB losers
-    const lbTeamsForNextRound = [...lbWinners, ...wbLosers];
+    const lbTeamsForNextRound = [...allLBWinners, ...wbLosers];
     if (lbTeamsForNextRound.length >= 2) {
       nextLBRound = currentLBRound + 1;
       // Shuffle to randomize pairings
       const shuffledLBTeams = shuffleArray(lbTeamsForNextRound);
-      for (let i = 0; i < shuffledLBTeams.length; i += 2) {
-        if (shuffledLBTeams[i + 1] !== undefined) {
-          matchesToInsert.push({
-            tournament_id: tournamentId,
-            bracket: "losers",
-            round: nextLBRound,
-            match_number: Math.floor(i / 2) + 1,
-            team1_number: shuffledLBTeams[i],
-            team2_number: shuffledLBTeams[i + 1],
-            team1_score: null,
-            team2_score: null,
-            winner_team_number: null,
-            scheduled_at: null,
-            court: null,
-            status: "upcoming",
-            is_reset_match: false,
-          });
-        }
+
+      // Handle bye for odd number of teams
+      const lbIsOdd = shuffledLBTeams.length % 2 === 1;
+      let lbByeTeam: number | null = null;
+      let lbPlayingTeams = shuffledLBTeams;
+
+      if (lbIsOdd) {
+        // Last team gets bye
+        lbByeTeam = shuffledLBTeams[shuffledLBTeams.length - 1];
+        lbPlayingTeams = shuffledLBTeams.slice(0, -1);
+      }
+
+      // Create matches for playing teams
+      for (let i = 0; i < lbPlayingTeams.length; i += 2) {
+        matchesToInsert.push({
+          tournament_id: tournamentId,
+          bracket: "losers",
+          round: nextLBRound,
+          match_number: Math.floor(i / 2) + 1,
+          team1_number: lbPlayingTeams[i],
+          team2_number: lbPlayingTeams[i + 1],
+          team1_score: null,
+          team2_score: null,
+          winner_team_number: null,
+          scheduled_at: null,
+          court: null,
+          status: "upcoming",
+          is_reset_match: false,
+        });
+      }
+
+      // Create bye match if odd
+      if (lbByeTeam !== null) {
+        matchesToInsert.push({
+          tournament_id: tournamentId,
+          bracket: "losers",
+          round: nextLBRound,
+          match_number: Math.floor(lbPlayingTeams.length / 2) + 1,
+          team1_number: lbByeTeam,
+          team2_number: null,
+          team1_score: null,
+          team2_score: null,
+          winner_team_number: lbByeTeam,
+          scheduled_at: null,
+          court: null,
+          status: "completed",
+          is_reset_match: false,
+        });
       }
     } else if (lbTeamsForNextRound.length === 1 && wbWinners.length === 1) {
       // LB has 1 team left, WB has 1 team - create grand final
@@ -471,7 +539,7 @@ export async function generateNextRound(
   }
 
   if (matchesToInsert.length === 0) {
-    return { error: "Không có trận đấu nào để tạo" };
+    return { error: "No matches to create" };
   }
 
   // Insert matches
@@ -498,10 +566,10 @@ export async function generateNextRound(
   const lbCount = matchesToInsert.filter((m) => m.bracket === "losers").length;
   const gfCount = matchesToInsert.filter((m) => m.bracket === "grand_final").length;
 
-  let message = "Đã tạo";
-  if (wbCount > 0) message += ` ${wbCount} trận WB Round ${nextWBRound}`;
-  if (lbCount > 0) message += ` ${lbCount} trận LB Round ${nextLBRound}`;
-  if (gfCount > 0) message += ` trận Chung kết`;
+  let message = "Created";
+  if (wbCount > 0) message += ` ${wbCount} WB Round ${nextWBRound} matches`;
+  if (lbCount > 0) message += ` ${lbCount} LB Round ${nextLBRound} matches`;
+  if (gfCount > 0) message += ` Grand Final match`;
 
   return { success: message };
 }
@@ -520,7 +588,7 @@ export async function updateMatchScore(
   // Verify user is organizer
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Bạn cần đăng nhập" };
+    return { error: "You need to login" };
   }
 
   // Get match and verify organizer
@@ -531,20 +599,20 @@ export async function updateMatchScore(
     .single();
 
   if (!match) {
-    return { error: "Không tìm thấy trận đấu" };
+    return { error: "Match not found" };
   }
 
   if ((match.tournament as { organizer_id: string }).organizer_id !== user.id) {
-    return { error: "Chỉ BTC mới có thể cập nhật điểm" };
+    return { error: "Only organizers can update scores" };
   }
 
   // Validate scores
   if (team1Score < 0 || team2Score < 0) {
-    return { error: "Điểm không được âm" };
+    return { error: "Score cannot be negative" };
   }
 
   if (team1Score === team2Score) {
-    return { error: "Không được hòa. Cần có đội thắng" };
+    return { error: "No draws allowed. Need a winner" };
   }
 
   // Determine winner
@@ -571,7 +639,7 @@ export async function updateMatchScore(
 
   revalidatePath(`/tournaments/${match.tournament_id}`);
   return {
-    success: "Đã cập nhật kết quả",
+    success: "Results updated",
     data: data as TournamentMatch,
   };
 }
@@ -588,7 +656,7 @@ export async function endTournament(
   // Verify organizer
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Bạn cần đăng nhập" };
+    return { error: "You need to login" };
   }
 
   const { data: tournament } = await supabase
@@ -598,11 +666,11 @@ export async function endTournament(
     .single();
 
   if (tournament?.organizer_id !== user.id) {
-    return { error: "Chỉ BTC mới có thể kết thúc giải đấu" };
+    return { error: "Only organizers can end tournament" };
   }
 
   if (tournament?.status === "completed") {
-    return { error: "Giải đấu đã kết thúc rồi" };
+    return { error: "Tournament already ended" };
   }
 
   // Get all matches
@@ -614,7 +682,7 @@ export async function endTournament(
   // Check if there are pending matches
   const pendingMatches = allMatches?.filter((m) => m.status !== "completed");
   if (pendingMatches && pendingMatches.length > 0) {
-    return { error: `Còn ${pendingMatches.length} trận chưa hoàn thành` };
+    return { error: `${pendingMatches.length} matches still incomplete` };
   }
 
   // Check if grand final completed
@@ -622,7 +690,7 @@ export async function endTournament(
     (m) => m.bracket === "grand_final" && m.status === "completed"
   );
   if (!grandFinal) {
-    return { error: "Trận chung kết chưa hoàn thành" };
+    return { error: "Grand final not completed" };
   }
 
   // Calculate rankings
@@ -653,7 +721,7 @@ export async function endTournament(
     .eq("id", tournamentId);
 
   revalidatePath(`/tournaments/${tournamentId}`);
-  return { success: "Đã kết thúc giải đấu và tính xếp hạng" };
+  return { success: "Tournament ended and rankings calculated" };
 }
 
 async function calculateFinalRankings(
@@ -661,14 +729,13 @@ async function calculateFinalRankings(
   tournamentId: string,
   matches: TournamentMatch[]
 ): Promise<TournamentRankingInsert[]> {
-  // Get all teams
-  const { data: teams } = await supabase
-    .from("tournament_teams")
-    .select("team_number")
-    .eq("tournament_id", tournamentId)
-    .eq("is_full", true);
-
-  const teamNumbers = teams?.map((t) => t.team_number) || [];
+  // Build team list from matches (more reliable than teams table)
+  const teamNumbersFromMatches = new Set<number>();
+  matches.forEach((match) => {
+    if (match.team1_number) teamNumbersFromMatches.add(match.team1_number);
+    if (match.team2_number) teamNumbersFromMatches.add(match.team2_number);
+  });
+  const teamNumbers = Array.from(teamNumbersFromMatches);
 
   // Track wins/losses and elimination round for each team
   const teamStats = new Map<number, { wins: number; losses: number; eliminatedInBracket: BracketType | null; eliminatedInRound: number }>();
@@ -723,52 +790,60 @@ async function calculateFinalRankings(
 
   // 1st - Champion
   if (champion) {
-    const stats = teamStats.get(champion)!;
-    rankings.push({
-      tournament_id: tournamentId,
-      team_number: champion,
-      position: position++,
-      points: calculatePoints(1),
-      wins: stats.wins,
-      losses: stats.losses,
-    });
-    rankedTeams.add(champion);
+    const stats = teamStats.get(champion);
+    if (stats) {
+      rankings.push({
+        tournament_id: tournamentId,
+        team_number: champion,
+        position: position++,
+        points: calculatePoints(1),
+        wins: stats.wins,
+        losses: stats.losses,
+      });
+      rankedTeams.add(champion);
+    }
   }
 
   // 2nd - Runner-up
   if (runnerUp) {
-    const stats = teamStats.get(runnerUp)!;
-    rankings.push({
-      tournament_id: tournamentId,
-      team_number: runnerUp,
-      position: position++,
-      points: calculatePoints(2),
-      wins: stats.wins,
-      losses: stats.losses,
-    });
-    rankedTeams.add(runnerUp);
+    const stats = teamStats.get(runnerUp);
+    if (stats) {
+      rankings.push({
+        tournament_id: tournamentId,
+        team_number: runnerUp,
+        position: position++,
+        points: calculatePoints(2),
+        wins: stats.wins,
+        losses: stats.losses,
+      });
+      rankedTeams.add(runnerUp);
+    }
   }
 
   // 3rd - LB Final loser
   if (thirdPlace && !rankedTeams.has(thirdPlace)) {
-    const stats = teamStats.get(thirdPlace)!;
-    rankings.push({
-      tournament_id: tournamentId,
-      team_number: thirdPlace,
-      position: position++,
-      points: calculatePoints(3),
-      wins: stats.wins,
-      losses: stats.losses,
-    });
-    rankedTeams.add(thirdPlace);
+    const stats = teamStats.get(thirdPlace);
+    if (stats) {
+      rankings.push({
+        tournament_id: tournamentId,
+        team_number: thirdPlace,
+        position: position++,
+        points: calculatePoints(3),
+        wins: stats.wins,
+        losses: stats.losses,
+      });
+      rankedTeams.add(thirdPlace);
+    }
   }
 
   // Remaining teams - sorted by LB elimination round (later = better)
   const remainingTeams = teamNumbers.filter((num) => !rankedTeams.has(num));
 
   remainingTeams.sort((a, b) => {
-    const aStats = teamStats.get(a)!;
-    const bStats = teamStats.get(b)!;
+    const aStats = teamStats.get(a);
+    const bStats = teamStats.get(b);
+
+    if (!aStats || !bStats) return 0;
 
     // First by elimination round (higher = better, so reverse)
     if (aStats.eliminatedInRound !== bStats.eliminatedInRound) {
@@ -780,16 +855,18 @@ async function calculateFinalRankings(
   });
 
   remainingTeams.forEach((teamNum) => {
-    const stats = teamStats.get(teamNum)!;
-    rankings.push({
-      tournament_id: tournamentId,
-      team_number: teamNum,
-      position: position,
-      points: calculatePoints(position),
-      wins: stats.wins,
-      losses: stats.losses,
-    });
-    position++;
+    const stats = teamStats.get(teamNum);
+    if (stats) {
+      rankings.push({
+        tournament_id: tournamentId,
+        team_number: teamNum,
+        position: position,
+        points: calculatePoints(position),
+        wins: stats.wins,
+        losses: stats.losses,
+      });
+      position++;
+    }
   });
 
   return rankings;
@@ -812,6 +889,57 @@ export async function isOrganizer(tournamentId: string): Promise<boolean> {
     .single();
 
   return tournament?.organizer_id === user.id;
+}
+
+
+// ============================================
+// UTILITY - Get team statistics
+// ============================================
+
+export interface TeamStats {
+  teamSize: number;
+  totalTeams: number;
+  fullTeams: number;
+  partialTeams: number;
+  emptyTeams: number;
+  hasIncompleteTeams: boolean;
+}
+
+export async function getTeamStats(tournamentId: string): Promise<TeamStats> {
+  const supabase = await createClient();
+
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("team_size")
+    .eq("id", tournamentId)
+    .single();
+
+  const { data: teams } = await supabase
+    .from("tournament_teams")
+    .select(`
+      team_number,
+      is_full,
+      members:tournament_participants(id)
+    `)
+    .eq("tournament_id", tournamentId);
+
+  const teamSize = tournament?.team_size ?? 2;
+  const totalTeams = teams?.length ?? 0;
+  const fullTeams = teams?.filter((t) => t.is_full).length ?? 0;
+  const partialTeams =
+    teams?.filter((t) => !t.is_full && (t.members?.length ?? 0) > 0).length ??
+    0;
+  const emptyTeams =
+    teams?.filter((t) => (t.members?.length ?? 0) === 0).length ?? 0;
+
+  return {
+    teamSize,
+    totalTeams,
+    fullTeams,
+    partialTeams,
+    emptyTeams,
+    hasIncompleteTeams: partialTeams > 0 || emptyTeams > 0,
+  };
 }
 
 // ============================================
@@ -893,4 +1021,222 @@ async function assignAchievementsToUsers(
       .from("user_achievements")
       .upsert(achievements, { onConflict: "user_id,tournament_id" });
   }
+}
+
+
+// ============================================
+// UPCOMING MATCHES FOR USER
+// ============================================
+
+export interface UpcomingMatchDisplay {
+  id: string;
+  tournamentId: string;
+  tournamentName: string;
+  tournamentLocation: string | null;
+  bracket: BracketType;
+  round: number;
+  scheduledAt: string | null;
+  tournamentStartDate: string;
+  court: string | null;
+  userTeamNumber: number;
+  opponentTeamNumber: number | null;
+  opponentNames: string[];
+}
+
+export type UpcomingMatchesResult = {
+  data?: UpcomingMatchDisplay[];
+  error?: string;
+};
+
+interface TournamentInfo {
+  id: string;
+  name: string;
+  location: string | null;
+  start_date: string;
+  status: string;
+}
+
+export async function getUpcomingMatches(
+  limit = 5
+): Promise<UpcomingMatchesResult> {
+  const supabase = await createClient();
+
+  // 1. Get current user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { data: [] };
+  }
+
+  // 2. Get user's tournament participations (with team_number assigned)
+  const { data: participations, error: participationsError } = await supabase
+    .from("tournament_participants")
+    .select(
+      `
+      tournament_id,
+      team_number,
+      tournament:tournaments(id, name, location, start_date, status)
+    `
+    )
+    .eq("user_id", user.id)
+    .not("team_number", "is", null);
+
+  if (participationsError) {
+    return { error: participationsError.message };
+  }
+
+  if (!participations || participations.length === 0) {
+    return { data: [] };
+  }
+
+  // 3. Filter active tournaments and build map
+  const userTournaments = new Map<
+    string,
+    { teamNumber: number; tournament: TournamentInfo }
+  >();
+
+  participations.forEach((p) => {
+    const tournament = p.tournament as unknown as TournamentInfo | null;
+    if (
+      p.team_number !== null &&
+      tournament &&
+      tournament.status !== "completed" &&
+      tournament.status !== "cancelled"
+    ) {
+      userTournaments.set(p.tournament_id, {
+        teamNumber: p.team_number,
+        tournament,
+      });
+    }
+  });
+
+  if (userTournaments.size === 0) {
+    return { data: [] };
+  }
+
+  // 4. Get upcoming matches for these tournaments
+  const tournamentIds = Array.from(userTournaments.keys());
+  const { data: matches, error: matchesError } = await supabase
+    .from("tournament_matches")
+    .select("*")
+    .in("tournament_id", tournamentIds)
+    .eq("status", "upcoming")
+    .order("scheduled_at", { ascending: true, nullsFirst: false });
+
+  if (matchesError) {
+    return { error: matchesError.message };
+  }
+
+  if (!matches || matches.length === 0) {
+    return { data: [] };
+  }
+
+  // 5. Filter matches where user's team is team1 or team2
+  const userMatches = matches.filter((m) => {
+    const info = userTournaments.get(m.tournament_id);
+    if (!info) return false;
+    return (
+      m.team1_number === info.teamNumber || m.team2_number === info.teamNumber
+    );
+  });
+
+  if (userMatches.length === 0) {
+    return { data: [] };
+  }
+
+  // 6. Collect opponent team keys for fetching names
+  const opponentTeamKeys = new Set<string>();
+  userMatches.forEach((match) => {
+    const info = userTournaments.get(match.tournament_id);
+    if (!info) return;
+
+    const opponentTeamNumber =
+      match.team1_number === info.teamNumber
+        ? match.team2_number
+        : match.team1_number;
+
+    if (opponentTeamNumber !== null) {
+      opponentTeamKeys.add(`${match.tournament_id}:${opponentTeamNumber}`);
+    }
+  });
+
+  // 7. Fetch opponent participants with profiles
+  const opponentNamesMap = new Map<string, string[]>();
+
+  if (opponentTeamKeys.size > 0) {
+    const opponentPromises = Array.from(opponentTeamKeys).map((key) => {
+      const [tournamentId, teamNumberStr] = key.split(":");
+      return supabase
+        .from("tournament_participants")
+        .select(
+          `
+          tournament_id,
+          team_number,
+          profile:profiles(nickname)
+        `
+        )
+        .eq("tournament_id", tournamentId)
+        .eq("team_number", parseInt(teamNumberStr, 10));
+    });
+
+    const opponentResults = await Promise.all(opponentPromises);
+
+    opponentResults.forEach((result) => {
+      if (result.data) {
+        result.data.forEach((p) => {
+          const key = `${p.tournament_id}:${p.team_number}`;
+          const names = opponentNamesMap.get(key) || [];
+          const profile = p.profile as unknown as { nickname: string } | null;
+          if (profile?.nickname) {
+            names.push(profile.nickname);
+          }
+          opponentNamesMap.set(key, names);
+        });
+      }
+    });
+  }
+
+  // 8. Build result array
+  const upcomingMatches: UpcomingMatchDisplay[] = userMatches
+    .slice(0, limit)
+    .map((match) => {
+      const info = userTournaments.get(match.tournament_id)!;
+      const isUserTeam1 = match.team1_number === info.teamNumber;
+      const opponentTeamNumber = isUserTeam1
+        ? match.team2_number
+        : match.team1_number;
+
+      const opponentKey =
+        opponentTeamNumber !== null
+          ? `${match.tournament_id}:${opponentTeamNumber}`
+          : null;
+      const opponentNames = opponentKey
+        ? opponentNamesMap.get(opponentKey) || []
+        : [];
+
+      return {
+        id: match.id,
+        tournamentId: match.tournament_id,
+        tournamentName: info.tournament.name,
+        tournamentLocation: info.tournament.location,
+        bracket: match.bracket as BracketType,
+        round: match.round,
+        scheduledAt: match.scheduled_at,
+        tournamentStartDate: info.tournament.start_date,
+        court: match.court,
+        userTeamNumber: info.teamNumber,
+        opponentTeamNumber,
+        opponentNames,
+      };
+    });
+
+  // 9. Sort: matches with scheduled_at first, then by tournament start_date
+  upcomingMatches.sort((a, b) => {
+    const dateA = a.scheduledAt || a.tournamentStartDate;
+    const dateB = b.scheduledAt || b.tournamentStartDate;
+    return new Date(dateA).getTime() - new Date(dateB).getTime();
+  });
+
+  return { data: upcomingMatches };
 }
