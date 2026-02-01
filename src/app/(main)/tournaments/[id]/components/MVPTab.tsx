@@ -1,12 +1,22 @@
 import { getTournamentRankings } from "@/lib/actions/match";
+import { getTournamentAchievementStatus } from "@/lib/actions/achievement";
 import { getTeamColor } from "../data/mock-data";
+import { AchievementActions } from "./AchievementActions";
 
 interface MVPTabProps {
   tournamentId: string;
+  isOwner: boolean;
+  tournamentStatus: string;
 }
 
-export async function MVPTab({ tournamentId }: MVPTabProps) {
+export async function MVPTab({ tournamentId, isOwner, tournamentStatus }: MVPTabProps) {
   const { data: rankings, error } = await getTournamentRankings(tournamentId);
+
+  // Fetch achievement status for owner when tournament is completed
+  let achievementStatus = { hasAchievements: false, achievementCount: 0 };
+  if (isOwner && tournamentStatus === "completed") {
+    achievementStatus = await getTournamentAchievementStatus(tournamentId);
+  }
 
   const getMedalIcon = (position: number) => {
     switch (position) {
@@ -61,6 +71,17 @@ export async function MVPTab({ tournamentId }: MVPTabProps) {
 
   return (
     <div className="px-6 pb-8">
+      {/* Organizer Achievement Actions */}
+      {isOwner && tournamentStatus === "completed" && (
+        <div className="mb-6">
+          <AchievementActions
+            tournamentId={tournamentId}
+            hasAchievements={achievementStatus.hasAchievements}
+            achievementCount={achievementStatus.achievementCount}
+          />
+        </div>
+      )}
+
       {/* Podium for top 3 */}
       <div className="flex items-end justify-center gap-3 mb-8 h-52 mt-8">
         {/* 2nd Place */}

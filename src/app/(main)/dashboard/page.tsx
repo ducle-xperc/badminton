@@ -49,7 +49,7 @@ export default async function DashboardPage() {
   const { data: upcomingMatches } = await getUpcomingMatches(5);
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col px-6 py-8">
+    <div className="relative mx-auto min-h-screen max-w-[480px] w-full  overflow-hidden flex flex-col px-6 py-8">
       {/* Background Decorations */}
       <div className="absolute inset-0 pointer-events-none opacity-10">
         <div className="absolute top-1/4 left-0 w-full h-[2px] court-line"></div>

@@ -38,7 +38,7 @@ export default async function TournamentDetailPage({ params }: PageProps) {
   const isOwner = user?.id === tournament.organizer_id;
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col">
+    <div className="relative mx-auto min-h-screen max-w-[480px] w-full  overflow-hidden flex flex-col">
       <TournamentHeader tournament={tournament} />
 
       <div className="relative z-10 flex-1 -mt-8 pb-24">
@@ -52,7 +52,7 @@ export default async function TournamentDetailPage({ params }: PageProps) {
           <ParticipantTab tournamentId={id} />
           <TeamTab tournamentId={id} />
           <MatchTab tournamentId={id} />
-          <MVPTab tournamentId={id} />
+          <MVPTab tournamentId={id} isOwner={isOwner} tournamentStatus={tournament.status} />
         </TabGroup>
       </div>
 

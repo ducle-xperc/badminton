@@ -23,7 +23,13 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
     );
   }
 
-  const teamList = teams || [];
+  const teamList = [...(teams || [])].sort((a, b) => {
+    const aHasMembers = (a.members?.length || 0) > 0;
+    const bHasMembers = (b.members?.length || 0) > 0;
+    if (aHasMembers && !bHasMembers) return -1;
+    if (!aHasMembers && bHasMembers) return 1;
+    return a.team_number - b.team_number;
+  });
 
   return (
     <div className="px-6 pb-8 space-y-4">
@@ -81,12 +87,30 @@ export async function TeamTab({ tournamentId }: TeamTabProps) {
                       const displayName = member.profile?.nickname || member.profile?.email || "Unknown";
                       return (
                         <div key={member.id} className="flex items-center gap-3">
-                          <div className="size-10 rounded-full bg-card-dark flex items-center justify-center overflow-hidden">
+                          <div className="size-10 rounded-full bg-card-dark flex items-center justify-center overflow-hidden flex-shrink-0">
                             <span className="material-symbols-outlined text-gray-400 text-xl">
                               person
                             </span>
                           </div>
-                          <span className="text-white text-sm">{displayName}</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-white text-sm truncate block">{displayName}</span>
+                            {member.profile?.status && (
+                              <div className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-gray-400 text-xs">campaign</span>
+                                <span className="text-xs text-gray-400 truncate">{member.profile.status}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-1 text-gray-400">
+                              <span className="material-symbols-outlined text-sm">sports_tennis</span>
+                              <span className="text-xs">{member.matchCount || 0}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-yellow-500">
+                              <span className="material-symbols-outlined text-sm">emoji_events</span>
+                              <span className="text-xs">{member.achievementCount || 0}</span>
+                            </div>
+                          </div>
                         </div>
                       );
                     })}

@@ -17,7 +17,7 @@ export default async function LeaderboardPage({
   const { data: leaderboard } = await getLeaderboard(sortBy);
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col">
+    <div className="relative mx-auto min-h-screen max-w-[480px] w-full  overflow-hidden flex flex-col">
       {/* Background Decorations */}
       <div className="absolute inset-0 pointer-events-none opacity-10">
         <div className="absolute top-1/4 left-0 w-full h-[2px] court-line"></div>

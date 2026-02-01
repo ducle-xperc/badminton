@@ -2,17 +2,9 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col justify-center text-white">
+    <div className="relative mx-auto min-h-screen max-w-[480px] w-full  overflow-hidden flex flex-col justify-center text-white">
       {/* Main Content */}
       <div className="flex-1 flex flex-col px-6 pt-4 relative justify-center items-center">
-        {/* Background Decorations */}
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-20 overflow-hidden">
-          <div className="absolute top-20 -right-20 w-96 h-96 border-[40px] border-primary/30 rounded-full rotate-45"></div>
-          <div className="absolute top-1/2 -left-20 w-80 h-[2px] bg-gold-accent/40 rotate-[15deg]"></div>
-          <div className="absolute top-[55%] -left-20 w-80 h-[1px] bg-primary/40 rotate-[15deg]"></div>
-          <div className="absolute top-[60%] -left-20 w-80 h-[2px] bg-white/20 rotate-[15deg]"></div>
-        </div>
-
         {/* Title Section */}
         <div className="relative z-10 mb-6">
           <div className="flex flex-col gap-1">

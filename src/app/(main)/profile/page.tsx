@@ -53,14 +53,14 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex items-center justify-center">
+      <div className="relative mx-auto min-h-screen max-w-[480px] w-full  overflow-hidden flex items-center justify-center">
         <div className="text-gray-400">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[480px] w-full bg-background-dark overflow-hidden flex flex-col text-white">
+    <div className="relative mx-auto min-h-screen max-w-[480px] w-full w-full  overflow-hidden flex flex-col text-white">
       {/* Background Decorations */}
       <div className="absolute inset-0 pointer-events-none opacity-10">
         <div className="absolute top-1/4 left-0 w-full h-[2px] court-line"></div>
@@ -167,16 +167,16 @@ export default function ProfilePage() {
                 id="gender"
                 {...register("gender")}
               >
-                <option value="" className="bg-background-dark">
+                <option value="" className="">
                   Select gender
                 </option>
-                <option value="male" className="bg-background-dark">
+                <option value="male" className="">
                   Male
                 </option>
-                <option value="female" className="bg-background-dark">
+                <option value="female" className="">
                   Female
                 </option>
-                <option value="other" className="bg-background-dark">
+                <option value="other" className="">
                   Other
                 </option>
               </select>

@@ -27,21 +27,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-[480px] bg-background-dark overflow-hidden flex flex-col items-center justify-center px-8 py-12 text-white">
-      {/* Background Decorations */}
-      <div className="absolute inset-0 pointer-events-none opacity-10">
-        <div className="absolute top-1/4 left-0 w-full h-[2px] court-line"></div>
-        <div className="absolute bottom-1/4 left-0 w-full h-[2px] court-line"></div>
-        <div className="absolute left-1/2 top-0 w-[2px] h-full court-line -translate-x-1/2"></div>
-        <div className="absolute -top-20 -right-20 w-64 h-64 border border-gold-accent/20 rounded-full"></div>
-        <div className="absolute -bottom-10 -left-10 w-48 h-48 border border-primary/20 rounded-full"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5">
-          <span className="material-symbols-outlined text-[300px]">
-            sports_tennis
-          </span>
-        </div>
-      </div>
-
+    <div className="relative mx-auto min-h-screen max-w-[480px] w-full  overflow-hidden flex flex-col items-center justify-center px-8 py-12 text-white">
       {/* Main Content */}
       <div className="relative z-10 w-full">
         {/* Header */}

@@ -36,7 +36,7 @@ export function BottomNav({ centerAction = defaultCenterAction }: BottomNavProps
 
   return (
     <div className="fixed bottom-0 left-0 w-full z-20 pb-6 pt-4 bg-gradient-to-t from-navy-deep via-navy-deep to-transparent">
-      <div className="mx-6 bg-card-dark/80 backdrop-blur-xl border border-white/5 rounded-2xl p-2 flex justify-between items-center px-4 shadow-2xl shadow-black/50 max-w-[480px] mx-auto">
+      <div className="mx-6 bg-card-dark/80 backdrop-blur-xl border border-white/5 rounded-2xl p-2 flex justify-between items-center px-4 shadow-2xl shadow-black/50 max-w-[480px] w-full mx-auto">
         {/* Left nav items */}
         {navItems.slice(0, 2).map((item) => (
           <Link

@@ -52,10 +52,27 @@ export async function ParticipantTab({ tournamentId }: ParticipantTabProps) {
                 <span className="material-symbols-outlined text-primary">person</span>
               </div>
 
-              {/* Name */}
+              {/* Name & Status */}
               <div className="flex-1 min-w-0">
                 <p className="text-white font-medium truncate">{displayName}</p>
-                <p className="text-xs text-gray-500 truncate">{participant.profile?.email}</p>
+                {participant.profile?.status && (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="material-symbols-outlined text-gray-400 text-sm">campaign</span>
+                    <p className="text-xs text-gray-400 truncate">{participant.profile.status}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center gap-1 text-gray-400">
+                  <span className="material-symbols-outlined text-sm">sports_tennis</span>
+                  <span className="text-xs">{participant.matchCount || 0}</span>
+                </div>
+                <div className="flex items-center gap-1 text-yellow-500">
+                  <span className="material-symbols-outlined text-sm">emoji_events</span>
+                  <span className="text-xs">{participant.achievementCount || 0}</span>
+                </div>
               </div>
 
               {/* Team Badge */}

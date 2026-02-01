@@ -257,7 +257,7 @@ export async function getTournamentParticipants(
   const userIds = participants.map((p) => p.user_id);
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
-    .select("id, nickname, email")
+    .select("id, nickname, email, status")
     .in("id", userIds);
 
   console.log("Debug - userIds:", userIds);
@@ -304,7 +304,9 @@ export async function getTournamentTeams(
   // Fetch profiles for all participants
   const userIds = participants?.map((p) => p.user_id) || [];
   const { data: profiles } = userIds.length > 0
-    ? await supabase.from("profiles").select("id, nickname, email").in("id", userIds)
+    ? await supabase.from("profiles")
+    .select("id, nickname, email, status")
+    .in("id", userIds)
     : { data: [] };
 
   // Create profile map

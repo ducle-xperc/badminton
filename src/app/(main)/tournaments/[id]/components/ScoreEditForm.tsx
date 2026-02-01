@@ -40,17 +40,17 @@ export function ScoreEditForm({
     const score2 = parseInt(team2Score, 10);
 
     if (isNaN(score1) || isNaN(score2)) {
-      setError("Vui lòng nhập điểm hợp lệ");
+      setError("Please enter a valid score");
       return;
     }
 
     if (score1 < 0 || score2 < 0) {
-      setError("Điểm không thể âm");
+      setError("Score cannot be negative");
       return;
     }
 
     if (score1 === score2) {
-      setError("Không được hòa");
+      setError("Cannot be a tie");
       return;
     }
 
@@ -78,7 +78,7 @@ export function ScoreEditForm({
         <span className="material-symbols-outlined text-base">
           {isCompleted ? "edit" : "add_circle"}
         </span>
-        {isCompleted ? "Sửa điểm" : "Nhập điểm"}
+        {isCompleted ? "Edit Score" : "Enter Score"}
       </button>
     );
   }
@@ -160,12 +160,12 @@ export function ScoreEditForm({
           {isPending ? (
             <>
               <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-              Đang lưu...
+              Saving...
             </>
           ) : (
             <>
               <span className="material-symbols-outlined text-sm">check</span>
-              Lưu điểm
+              Save Score
             </>
           )}
         </button>
@@ -182,7 +182,7 @@ export function ScoreEditForm({
             hover:border-white/20 hover:text-white disabled:opacity-50 transition-colors"
         >
           <span className="material-symbols-outlined text-sm">close</span>
-          Hủy
+          Cancel
         </button>
       </div>
     </form>

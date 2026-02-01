@@ -313,9 +313,11 @@ export async function generateNextRound(
   const wbCurrentRoundMatches = allMatches.filter(
     (m) => m.bracket === "winners" && m.round === currentWBRound
   );
-  const wbWinners = wbCurrentRoundMatches
-    .filter((m) => m.winner_team_number !== null)
-    .map((m) => m.winner_team_number as number);
+  const wbWinners = [...new Set(
+    wbCurrentRoundMatches
+      .filter((m) => m.winner_team_number !== null)
+      .map((m) => m.winner_team_number as number)
+  )];
   // Get losers from WB (exclude bye matches where team2 is null)
   const wbLosers = wbCurrentRoundMatches
     .filter((m) => m.winner_team_number !== null && m.team2_number !== null) // Exclude bye matches
@@ -332,17 +334,21 @@ export async function generateNextRound(
   const lbCurrentRoundMatches = allMatches.filter(
     (m) => m.bracket === "losers" && m.round === currentLBRound
   );
-  const lbWinners = lbCurrentRoundMatches
-    .filter((m) => m.winner_team_number !== null && m.team2_number !== null) // Exclude bye matches
-    .map((m) => m.winner_team_number as number);
+  const lbWinners = [...new Set(
+    lbCurrentRoundMatches
+      .filter((m) => m.winner_team_number !== null && m.team2_number !== null) // Exclude bye matches
+      .map((m) => m.winner_team_number as number)
+  )];
 
   // Get LB bye teams (they should also advance)
-  const lbByeWinners = lbCurrentRoundMatches
-    .filter((m) => m.winner_team_number !== null && m.team2_number === null) // Bye matches only
-    .map((m) => m.winner_team_number as number);
+  const lbByeWinners = [...new Set(
+    lbCurrentRoundMatches
+      .filter((m) => m.winner_team_number !== null && m.team2_number === null) // Bye matches only
+      .map((m) => m.winner_team_number as number)
+  )];
 
-  // Combine LB winners with LB bye winners
-  const allLBWinners = [...lbWinners, ...lbByeWinners];
+  // Combine LB winners with LB bye winners (ensure no duplicates)
+  const allLBWinners = [...new Set([...lbWinners, ...lbByeWinners])];
 
   const matchesToInsert: TournamentMatchInsert[] = [];
   let nextWBRound = currentWBRound;

@@ -56,7 +56,10 @@ export interface TournamentParticipant {
     id: string;
     nickname: string;
     email: string;
+    status?: string | null;
   };
+  matchCount?: number;
+  achievementCount?: number;
 }
 
 // Team in a tournament

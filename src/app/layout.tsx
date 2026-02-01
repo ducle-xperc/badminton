@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
 import "./globals.css";
+import { BackgroundGradient } from "@/components/ui/background-gradient";
 
 const lexend = Lexend({
   variable: "--font-lexend",
@@ -25,7 +26,12 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${lexend.variable} antialiased`}>{children}</body>
+      <body className={`${lexend.variable} antialiased`}>
+        <div className="min-h-screen flex flex-col relative">
+          <BackgroundGradient />
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

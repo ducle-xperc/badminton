@@ -96,7 +96,7 @@ export function DrawClient({
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       {/* Background Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-background-dark" />
+        <div className="absolute inset-0 " />
         {tournament.banner_url && (
           <div
             className="absolute inset-0 opacity-30 bg-cover bg-center mix-blend-overlay"
@@ -107,9 +107,9 @@ export function DrawClient({
       </div>
 
       {/* Content Wrapper */}
-      <div className="relative z-10 flex flex-col h-full min-h-screen max-w-[480px] mx-auto w-full">
+      <div className="relative z-10 flex flex-col h-full min-h-screen max-w-[480px] w-full mx-auto w-full">
         {/* TopAppBar */}
-        <div className="flex items-center p-4 justify-between bg-navy-deep/50 backdrop-blur-md sticky top-0 z-50 border-b border-white/5">
+        <div className="flex items-center p-4 justify-between sticky top-0 z-50 border-b border-white/5">
           <Link
             href={`/tournaments/${tournament.id}`}
             className="text-white flex size-12 shrink-0 items-center justify-start cursor-pointer"

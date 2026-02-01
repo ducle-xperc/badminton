@@ -40,7 +40,7 @@ export function MatchCard({ match, canEdit }: MatchCardProps) {
             skip_next
           </span>
           <span className="text-yellow-500 text-xs font-medium uppercase tracking-wide">
-            Được miễn đấu vòng này
+            BYE this round
           </span>
         </div>
       )}
@@ -75,7 +75,7 @@ export function MatchCard({ match, canEdit }: MatchCardProps) {
             <div className="mt-2">
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
                 <span className="material-symbols-outlined text-xs">check_circle</span>
-                Thắng
+                Win
               </span>
             </div>
           )}
@@ -111,7 +111,7 @@ export function MatchCard({ match, canEdit }: MatchCardProps) {
                   block
                 </span>
               </div>
-              <p className="text-gray-500 font-medium text-sm">Không có đối thủ</p>
+              <p className="text-gray-500 font-medium text-sm">No opponent</p>
             </>
           ) : (
             <>
@@ -168,7 +168,7 @@ export function MatchCard({ match, canEdit }: MatchCardProps) {
           )}
           {match.scheduled_at && (
             <span>
-              {new Date(match.scheduled_at).toLocaleString("vi-VN", {
+              {new Date(match.scheduled_at).toLocaleString("en-US", {
                 month: "short",
                 day: "numeric",
                 hour: "2-digit",

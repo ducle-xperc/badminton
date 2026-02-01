@@ -54,17 +54,17 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
                 </span>
                 <div>
                   <p className="text-yellow-400 font-medium">
-                    Có đội chưa đủ thành viên
+                    Some teams are incomplete
                   </p>
                   <p className="text-sm text-gray-400 mt-1">
                     {teamStats.partialTeams > 0 &&
-                      `${teamStats.partialTeams} đội thiếu người`}
+                      `${teamStats.partialTeams} teams short of members`}
                     {teamStats.partialTeams > 0 &&
                       teamStats.emptyTeams > 0 &&
                       ", "}
                     {teamStats.emptyTeams > 0 &&
-                      `${teamStats.emptyTeams} đội trống`}
-                    . Bạn vẫn có thể sắp xếp bảng đấu.
+                      `${teamStats.emptyTeams} empty teams`}
+                    . You can still arrange the bracket.
                   </p>
                 </div>
               </div>
@@ -98,9 +98,9 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
           <span className="material-symbols-outlined text-3xl text-green-400 mb-2">
             emoji_events
           </span>
-          <p className="text-green-400 font-medium">Giải đấu đã kết thúc!</p>
+          <p className="text-green-400 font-medium">Tournament has ended!</p>
           <p className="text-sm text-gray-400 mt-1">
-            Xem kết quả xếp hạng tại tab MVP
+            View ranking results in the MVP tab
           </p>
         </div>
       )}
@@ -111,10 +111,10 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
           <span className="material-symbols-outlined text-4xl text-gray-500 mb-2">
             sports
           </span>
-          <p className="text-gray-400">Chưa có trận đấu</p>
+          <p className="text-gray-400">No matches yet</p>
           {canManage && !bracketGenerated && (
             <p className="text-sm text-gray-500 mt-2">
-              Nhấn &quot;Sắp xếp bảng đấu&quot; để tạo lịch thi đấu
+              Click &quot;Arrange Bracket&quot; to create the schedule
             </p>
           )}
         </div>
