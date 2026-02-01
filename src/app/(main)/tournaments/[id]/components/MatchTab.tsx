@@ -3,6 +3,7 @@ import { getTournament } from "@/lib/actions/tournament";
 import { GenerateMatchesButton } from "./GenerateMatchesButton";
 import { EndTournamentButton } from "./EndTournamentButton";
 import { RoundTabs } from "./RoundTabs";
+import { ExportMatchesButton } from "./ExportMatchesButton";
 
 interface MatchTabProps {
   tournamentId: string;
@@ -39,7 +40,15 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-white">Matches</h2>
-        <span className="text-sm text-gray-400">{matches.length} matches</span>
+        <div className="flex items-center gap-3">
+          {hasMatches && isOrganizerResult && (
+            <ExportMatchesButton 
+              matches={matches} 
+              tournamentName={tournament?.name} 
+            />
+          )}
+          <span className="text-sm text-gray-400">{matches.length} matches</span>
+        </div>
       </div>
 
       {/* Organizer Actions */}

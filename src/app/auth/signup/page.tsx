@@ -62,16 +62,18 @@ export default function SignUpPage() {
             >
               Nickname
             </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+            <div
+              className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+                errors.nickname
+                  ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+                  : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+              }`}
+            >
+              <span className="material-symbols-outlined text-gray-500 text-xl">
                 alternate_email
               </span>
               <input
-                className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-                  errors.nickname
-                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                    : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-                }`}
+                className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
                 id="nickname"
                 placeholder="Choose a nickname (3-20 chars)"
                 type="text"
@@ -93,16 +95,18 @@ export default function SignUpPage() {
             >
               Email
             </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+            <div
+              className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+                errors.email
+                  ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+                  : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+              }`}
+            >
+              <span className="material-symbols-outlined text-gray-500 text-xl">
                 mail
               </span>
               <input
-                className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-                  errors.email
-                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                    : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-                }`}
+                className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
                 id="email"
                 placeholder="Enter your email"
                 type="email"
@@ -127,16 +131,18 @@ export default function SignUpPage() {
             >
               Password
             </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+            <div
+              className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+                errors.password
+                  ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+                  : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+              }`}
+            >
+              <span className="material-symbols-outlined text-gray-500 text-xl">
                 lock
               </span>
               <input
-                className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-                  errors.password
-                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                    : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-                }`}
+                className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
                 id="password"
                 placeholder="Create a password (min 6 chars)"
                 type="password"
@@ -158,16 +164,18 @@ export default function SignUpPage() {
             >
               Confirm Password
             </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">
+            <div
+              className={`flex items-center gap-3 bg-navy-deep/50 border rounded-xl px-4 transition-all backdrop-blur-sm ${
+                errors.confirmPassword
+                  ? "border-red-500/50 focus-within:border-red-500/50 focus-within:ring-1 focus-within:ring-red-500/50"
+                  : "border-white/10 focus-within:border-gold-accent/50 focus-within:ring-1 focus-within:ring-gold-accent/50"
+              }`}
+            >
+              <span className="material-symbols-outlined text-gray-500 text-xl">
                 lock
               </span>
               <input
-                className={`w-full bg-navy-deep/50 border rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none transition-all backdrop-blur-sm ${
-                  errors.confirmPassword
-                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50"
-                    : "border-white/10 focus:border-gold-accent/50 focus:ring-1 focus:ring-gold-accent/50"
-                }`}
+                className="flex-1 bg-transparent py-4 text-white placeholder:text-gray-600 focus:outline-none"
                 id="confirmPassword"
                 placeholder="Confirm your password"
                 type="password"

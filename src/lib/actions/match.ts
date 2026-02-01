@@ -66,6 +66,37 @@ function calculatePoints(position: number): number {
   }
 }
 
+// Calculate expected match counts for double elimination
+// Formula: Total = 2N - 2 (or 2N - 1 with reset match)
+function calculateExpectedMatches(teamCount: number): {
+  wbMatches: number;
+  lbMatches: number;
+  grandFinal: number;
+  totalMin: number;
+  totalMax: number;
+} {
+  if (teamCount < 2) {
+    return { wbMatches: 0, lbMatches: 0, grandFinal: 0, totalMin: 0, totalMax: 0 };
+  }
+
+  // WB matches: N - 1 (each match eliminates one team from WB)
+  const wbMatches = teamCount - 1;
+
+  // LB matches: N - 2 (each match eliminates one team completely, minus the grand final loser)
+  const lbMatches = teamCount - 2;
+
+  // Grand final: 1 match minimum, 2 if reset needed
+  const grandFinal = 1;
+
+  return {
+    wbMatches,
+    lbMatches,
+    grandFinal,
+    totalMin: wbMatches + lbMatches + 1, // 2N - 2
+    totalMax: wbMatches + lbMatches + 2, // 2N - 1 (with reset)
+  };
+}
+
 // ============================================
 // QUERY FUNCTIONS
 // ============================================
@@ -318,13 +349,29 @@ export async function generateNextRound(
       .filter((m) => m.winner_team_number !== null)
       .map((m) => m.winner_team_number as number)
   )];
+
   // Get losers from WB (exclude bye matches where team2 is null)
-  const wbLosers = wbCurrentRoundMatches
+  // IMPORTANT: Only get WB losers if WB will continue (create new round)
+  // If WB is complete, we need to check if this loser was already added to LB
+  const wbLosersFromCurrentRound = wbCurrentRoundMatches
     .filter((m) => m.winner_team_number !== null && m.team2_number !== null) // Exclude bye matches
     .map((m) =>
       m.team1_number === m.winner_team_number ? m.team2_number : m.team1_number
     )
     .filter((n): n is number => n !== null);
+
+  // Check which WB losers have already been added to LB
+  const lbAllMatches = allMatches.filter((m) => m.bracket === "losers");
+  const teamsAlreadyInLB = new Set<number>();
+  lbAllMatches.forEach((m) => {
+    if (m.team1_number) teamsAlreadyInLB.add(m.team1_number);
+    if (m.team2_number) teamsAlreadyInLB.add(m.team2_number);
+  });
+
+  // Only include WB losers that haven't been added to LB yet
+  const wbLosers = wbLosersFromCurrentRound.filter(
+    (teamNum) => !teamsAlreadyInLB.has(teamNum)
+  );
 
   // Get bye teams (teams that didn't play in WB Round 1) - no longer needed with new logic
   // With new logic, bye teams are already marked as completed matches with team2_number = null
@@ -362,8 +409,8 @@ export async function generateNextRound(
 
   if (grandFinalCompleted) {
     // Check if reset match needed (LB champion won grand final)
-    const lbChampWon = grandFinalCompleted.winner_team_number !== null &&
-      allLBWinners.includes(grandFinalCompleted.winner_team_number);
+    // LB champion is team2 in grand final (WB champion is always team1)
+    const lbChampWon = grandFinalCompleted.winner_team_number === grandFinalCompleted.team2_number;
 
     if (lbChampWon) {
       // Check if reset match exists
@@ -909,6 +956,13 @@ export interface TeamStats {
   partialTeams: number;
   emptyTeams: number;
   hasIncompleteTeams: boolean;
+  expectedMatches: {
+    wbMatches: number;
+    lbMatches: number;
+    grandFinal: number;
+    totalMin: number;
+    totalMax: number;
+  };
 }
 
 export async function getTeamStats(tournamentId: string): Promise<TeamStats> {
@@ -945,6 +999,7 @@ export async function getTeamStats(tournamentId: string): Promise<TeamStats> {
     partialTeams,
     emptyTeams,
     hasIncompleteTeams: partialTeams > 0 || emptyTeams > 0,
+    expectedMatches: calculateExpectedMatches(totalTeams),
   };
 }
 
