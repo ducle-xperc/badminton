@@ -136,7 +136,7 @@ export function ChampionsPodium({
             </div>
           )}
           <p
-            className={`text-xs mt-2 font-semibold ${tier1 ? "" : "text-gray-500"}`}
+            className={`text-xs mt-2 font-semibold text-center ${tier1 ? "" : "text-gray-500"}`}
             style={tier1 ? { color: tier1.color } : undefined}
           >
             {tier1?.title ?? "Champion"}
