@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { HamburgerMenu } from "./hamburger-menu";
-import { getUserAchievements, getUserAchievementStats } from "@/lib/actions/achievement";
+import {
+  getUserAchievements,
+  getUserAchievementStats,
+} from "@/lib/actions/achievement";
 import { getUpcomingMatches } from "@/lib/actions/match";
 import { AchievementCard } from "./achievement-card";
 import { UpcomingMatchCard } from "./upcoming-match-card";
@@ -24,20 +27,22 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  const nickname = user.user_metadata?.nickname || user.email?.split("@")[0] || "Player";
+  const nickname =
+    user.user_metadata?.nickname || user.email?.split("@")[0] || "Player";
   const email = user.email || "";
-  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+  const avatarUrl =
+    user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
   const gender = profile?.gender || "other";
 
   // Default avatar based on gender
   const getDefaultAvatar = (gender: string) => {
     switch (gender) {
       case "male":
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4";
+        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Milo&backgroundColor=c0aede";
       case "female":
         return "https://api.dicebear.com/9.x/adventurer/svg?seed=Lily&backgroundColor=ffdfbf";
       default:
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Milo&backgroundColor=c0aede";
+        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4";
     }
   };
 
@@ -90,15 +95,15 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight text-white mb-0.5">
           {nickname}
         </h1>
-        <p className="text-gray-400 text-sm font-medium">
-          {email}
-        </p>
+        <p className="text-gray-400 text-sm font-medium">{email}</p>
       </div>
 
       {/* Stats Grid */}
       <div className="relative z-10 grid grid-cols-3 gap-3 mb-8">
         <div className="bg-card-dark/50 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col items-center text-center">
-          <span className="text-2xl font-bold text-white mb-1">{stats.totalAchievements}</span>
+          <span className="text-2xl font-bold text-white mb-1">
+            {stats.totalAchievements}
+          </span>
           <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
             Achievements
           </span>
@@ -137,9 +142,14 @@ export default async function DashboardPage() {
         </div>
         <div className="flex gap-3 overflow-x-auto hide-scroll pb-2 -mx-6 px-6">
           {achievements && achievements.length > 0 ? (
-            achievements.slice(0, 5).map((achievement) => (
-              <AchievementCard key={achievement.id} achievement={achievement} />
-            ))
+            achievements
+              .slice(0, 5)
+              .map((achievement) => (
+                <AchievementCard
+                  key={achievement.id}
+                  achievement={achievement}
+                />
+              ))
           ) : (
             <div className="w-full text-center py-8">
               <span className="material-symbols-outlined text-4xl text-gray-600 mb-2">
