@@ -9,6 +9,7 @@ import { getUpcomingMatches } from "@/lib/actions/match";
 import { AchievementCard } from "./achievement-card";
 import { UpcomingMatchCard } from "./upcoming-match-card";
 import { BottomNav } from "@/components/BottomNav";
+import { Avatar } from "@/components/ui/avatar";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -20,31 +21,24 @@ export default async function DashboardPage() {
     redirect("/auth/login");
   }
 
-  // Fetch profile for gender
+  // Fetch profile for gender and avatar
   const { data: profile } = await supabase
     .from("profiles")
-    .select("gender")
+    .select("gender, avatar_url")
     .eq("id", user.id)
     .single();
 
   const nickname =
     user.user_metadata?.nickname || user.email?.split("@")[0] || "Player";
   const email = user.email || "";
-  const avatarUrl =
-    user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
   const gender = profile?.gender || "other";
 
-  // Default avatar based on gender
-  const getDefaultAvatar = (gender: string) => {
-    switch (gender) {
-      case "male":
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Milo&backgroundColor=c0aede";
-      case "female":
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Lily&backgroundColor=ffdfbf";
-      default:
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4";
-    }
-  };
+  // Use profile avatar_url first, then OAuth avatar
+  const avatarUrl =
+    profile?.avatar_url ||
+    user.user_metadata?.avatar_url ||
+    user.user_metadata?.picture ||
+    null;
 
   // Fetch achievements
   const { data: achievements } = await getUserAchievements();
@@ -85,10 +79,12 @@ export default async function DashboardPage() {
       <div className="relative z-10 flex flex-col items-center mb-8">
         <div className="relative mb-4">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-blue-800 p-[2px] shadow-lg shadow-primary/30">
-            <img
+            <Avatar
+              src={avatarUrl}
               alt="Avatar"
-              className="w-full h-full object-cover rounded-full border-2 border-background-dark"
-              src={avatarUrl || getDefaultAvatar(gender)}
+              gender={gender}
+              size="lg"
+              className="border-2 border-background-dark"
             />
           </div>
         </div>

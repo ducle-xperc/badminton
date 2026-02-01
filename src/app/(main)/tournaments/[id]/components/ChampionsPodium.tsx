@@ -1,4 +1,5 @@
 import type { TournamentRanking, TournamentParticipant } from "@/types/database";
+import { Avatar } from "@/components/ui/avatar";
 
 type AchievementTier = {
   id: string;
@@ -32,6 +33,10 @@ const formatMemberNames = (
   return names.join(" & ") || "-";
 };
 
+const getFirstMember = (members: TournamentParticipant[] | undefined) => {
+  return members?.[0];
+};
+
 const getTierForPosition = (
   tiers: AchievementTier[],
   position: number
@@ -58,6 +63,10 @@ export function ChampionsPodium({
   const tier2 = getTierForPosition(tiers, 2);
   const tier3 = getTierForPosition(tiers, 3);
 
+  const firstMember = getFirstMember(first?.members);
+  const secondMember = getFirstMember(second?.members);
+  const thirdMember = getFirstMember(third?.members);
+
   return (
     <div className="bg-card-dark/80 backdrop-blur-xl border border-white/5 rounded-2xl p-5">
       <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -70,19 +79,24 @@ export function ChampionsPodium({
       <div className="flex items-end justify-center gap-4">
         {/* 2nd Place */}
         <div className="flex flex-col items-center flex-1">
-          <div
-            className={`size-12 rounded-full flex items-center justify-center border-2 ${
-              second
-                ? "bg-gray-300/20 border-gray-300"
-                : "bg-gray-500/10 border-gray-500/30"
-            }`}
-          >
-            <span
-              className={`font-bold text-lg ${second ? "text-gray-300" : "text-gray-500"}`}
-            >
-              2
-            </span>
-          </div>
+          {second && secondMember ? (
+            <div className="relative">
+              <Avatar
+                src={secondMember.profile?.avatar_url}
+                gender={secondMember.profile?.gender}
+                alt={secondMember.profile?.nickname || "2nd Place"}
+                size="md"
+                className="border-2 border-gray-300"
+              />
+              <div className="absolute -bottom-1 -right-1 size-5 rounded-full bg-gray-300 flex items-center justify-center">
+                <span className="text-gray-800 font-bold text-xs">2</span>
+              </div>
+            </div>
+          ) : (
+            <div className="size-12 rounded-full flex items-center justify-center border-2 bg-gray-500/10 border-gray-500/30">
+              <span className="font-bold text-lg text-gray-500">2</span>
+            </div>
+          )}
           <p
             className={`text-xs mt-2 ${tier2 ? "" : "text-gray-500"}`}
             style={tier2 ? { color: tier2.color } : undefined}
@@ -103,19 +117,24 @@ export function ChampionsPodium({
           >
             emoji_events
           </span>
-          <div
-            className={`size-14 rounded-full flex items-center justify-center border-2 ${
-              first
-                ? "bg-gold-accent/30 border-gold-accent"
-                : "bg-gray-500/10 border-gray-500/30"
-            }`}
-          >
-            <span
-              className={`font-bold text-xl ${first ? "text-gold-accent" : "text-gray-500"}`}
-            >
-              1
-            </span>
-          </div>
+          {first && firstMember ? (
+            <div className="relative">
+              <Avatar
+                src={firstMember.profile?.avatar_url}
+                gender={firstMember.profile?.gender}
+                alt={firstMember.profile?.nickname || "Champion"}
+                size="lg"
+                className="border-2 border-gold-accent"
+              />
+              <div className="absolute -bottom-1 -right-1 size-6 rounded-full bg-gold-accent flex items-center justify-center">
+                <span className="text-black font-bold text-xs">1</span>
+              </div>
+            </div>
+          ) : (
+            <div className="size-14 rounded-full flex items-center justify-center border-2 bg-gray-500/10 border-gray-500/30">
+              <span className="font-bold text-xl text-gray-500">1</span>
+            </div>
+          )}
           <p
             className={`text-xs mt-2 font-semibold ${tier1 ? "" : "text-gray-500"}`}
             style={tier1 ? { color: tier1.color } : undefined}
@@ -131,19 +150,24 @@ export function ChampionsPodium({
 
         {/* 3rd Place */}
         <div className="flex flex-col items-center flex-1">
-          <div
-            className={`size-10 rounded-full flex items-center justify-center border-2 ${
-              third
-                ? "bg-amber-600/20 border-amber-600"
-                : "bg-gray-500/10 border-gray-500/30"
-            }`}
-          >
-            <span
-              className={`font-bold text-base ${third ? "text-amber-600" : "text-gray-500"}`}
-            >
-              3
-            </span>
-          </div>
+          {third && thirdMember ? (
+            <div className="relative">
+              <Avatar
+                src={thirdMember.profile?.avatar_url}
+                gender={thirdMember.profile?.gender}
+                alt={thirdMember.profile?.nickname || "3rd Place"}
+                size="md"
+                className="border-2 border-amber-600"
+              />
+              <div className="absolute -bottom-1 -right-1 size-5 rounded-full bg-amber-600 flex items-center justify-center">
+                <span className="text-white font-bold text-xs">3</span>
+              </div>
+            </div>
+          ) : (
+            <div className="size-10 rounded-full flex items-center justify-center border-2 bg-gray-500/10 border-gray-500/30">
+              <span className="font-bold text-base text-gray-500">3</span>
+            </div>
+          )}
           <p
             className={`text-xs mt-2 ${tier3 ? "" : "text-gray-500"}`}
             style={tier3 ? { color: tier3.color } : undefined}

@@ -11,6 +11,7 @@ export const profileSchema = z.object({
     .max(100, "Maximum 100 characters")
     .optional()
     .or(z.literal("")),
+  avatar_url: z.string().url().nullable().optional(),
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;

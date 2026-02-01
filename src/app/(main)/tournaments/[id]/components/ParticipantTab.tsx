@@ -1,5 +1,6 @@
 import { getTournamentParticipants } from "@/lib/actions/draw";
 import { getTeamColor } from "../data/mock-data";
+import { Avatar } from "@/components/ui/avatar";
 
 interface ParticipantTabProps {
   tournamentId: string;
@@ -48,9 +49,12 @@ export async function ParticipantTab({ tournamentId }: ParticipantTabProps) {
               className="bg-card-dark/50 border border-white/5 rounded-xl p-4 flex items-center gap-4"
             >
               {/* Avatar */}
-              <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <span className="material-symbols-outlined text-primary">person</span>
-              </div>
+              <Avatar
+                src={participant.profile?.avatar_url}
+                gender={participant.profile?.gender}
+                alt={displayName}
+                size="md"
+              />
 
               {/* Name & Status */}
               <div className="flex-1 min-w-0">

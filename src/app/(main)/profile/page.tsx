@@ -6,18 +6,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { profileSchema, type ProfileInput } from "@/lib/validations/profile";
 import { getProfile, updateProfile } from "@/lib/actions/profile";
-import type { Profile } from "@/types/database";
 import { BottomNav } from "@/components/BottomNav";
+import { AvatarPickerModal } from "@/components/ui/avatar-picker-modal";
+import { Avatar } from "@/components/ui/avatar";
 
 export default function ProfilePage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const [gender, setGender] = useState<string | null>(null);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -29,16 +34,25 @@ export default function ProfilePage() {
       if (result.error) {
         setServerError(result.error);
       } else if (result.data) {
+        const avatarUrl = result.data.avatar_url || null;
         reset({
           nickname: result.data.nickname || "",
           gender: result.data.gender,
           status: result.data.status || "",
+          avatar_url: avatarUrl,
         });
+        setSelectedAvatar(avatarUrl);
+        setGender(result.data.gender);
       }
       setLoading(false);
     }
     loadProfile();
   }, [reset]);
+
+  const handleAvatarChange = (url: string) => {
+    setSelectedAvatar(url);
+    setValue("avatar_url", url);
+  };
 
   const onSubmit = async (data: ProfileInput) => {
     setServerError(null);
@@ -86,14 +100,39 @@ export default function ProfilePage() {
 
       {/* Main Content */}
       <div className="relative z-10 flex-1 px-8 pb-12">
-        {/* Profile Icon */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center size-20 rounded-2xl bg-gradient-to-br from-primary to-blue-700 shadow-xl shadow-primary/20">
-            <span className="material-symbols-outlined text-white text-5xl font-light">
-              account_circle
-            </span>
-          </div>
+        {/* Current Avatar Display with Edit Button */}
+        <div className="mb-6 text-center">
+          <button
+            type="button"
+            onClick={() => setIsAvatarModalOpen(true)}
+            className="inline-block relative group cursor-pointer"
+          >
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-blue-800 p-[3px] shadow-xl shadow-primary/30">
+              <Avatar
+                src={selectedAvatar}
+                alt="Current Avatar"
+                gender={gender}
+                size="lg"
+                className="size-full border-2 border-background-dark"
+              />
+            </div>
+            {/* Edit Icon Overlay */}
+            <div className="absolute bottom-0 right-0 size-8 rounded-full bg-primary border-2 border-background-dark flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-white text-sm">
+                edit
+              </span>
+            </div>
+          </button>
+          <p className="text-xs text-gray-500 mt-2">Tap to change avatar</p>
         </div>
+
+        {/* Avatar Picker Modal */}
+        <AvatarPickerModal
+          isOpen={isAvatarModalOpen}
+          onClose={() => setIsAvatarModalOpen(false)}
+          value={selectedAvatar}
+          onChange={handleAvatarChange}
+        />
 
         {/* Error Message */}
         {serverError && (

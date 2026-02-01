@@ -7,6 +7,12 @@ import { RoundTabs } from "./RoundTabs";
 import { ExportMatchesButton } from "./ExportMatchesButton";
 import { ResetMatchesButton } from "./ResetMatchesButton";
 
+export interface TeamMemberInfo {
+  name: string;
+  avatar_url?: string | null;
+  gender?: string | null;
+}
+
 interface MatchTabProps {
   tournamentId: string;
 }
@@ -28,13 +34,15 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
   // Debug log
   console.log("Teams with members:", JSON.stringify(teams.map(t => ({ team_number: t.team_number, members: t.members?.map(m => m.profile?.nickname) })), null, 2));
 
-  // Create a map from team_number to member names
-  const teamMembersMap = new Map<number, string[]>();
+  // Create a map from team_number to member info (including avatar)
+  const teamMembersMap = new Map<number, TeamMemberInfo[]>();
   teams.forEach((team) => {
-    const memberNames = (team.members || [])
-      .map((m) => m.profile?.nickname || "Unknown")
-      .filter(Boolean);
-    teamMembersMap.set(team.team_number, memberNames);
+    const members = (team.members || []).map((m) => ({
+      name: m.profile?.nickname || "Unknown",
+      avatar_url: m.profile?.avatar_url,
+      gender: m.profile?.gender,
+    }));
+    teamMembersMap.set(team.team_number, members);
   });
 
   // Check tournament state

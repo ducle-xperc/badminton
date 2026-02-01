@@ -8,6 +8,7 @@ export interface Profile {
   email: string | null;
   gender: Gender | null;
   status: string | null;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -57,6 +58,8 @@ export interface TournamentParticipant {
     nickname: string;
     email: string;
     status?: string | null;
+    avatar_url?: string | null;
+    gender?: string | null;
   };
   matchCount?: number;
   achievementCount?: number;

@@ -84,6 +84,7 @@ export async function updateProfile(input: ProfileInput): Promise<ProfileResult>
       nickname: input.nickname,
       gender: input.gender || null,
       status: input.status || null,
+      avatar_url: input.avatar_url || null,
     })
     .eq("id", user.id)
     .select()

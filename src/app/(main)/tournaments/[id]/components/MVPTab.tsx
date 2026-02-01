@@ -2,6 +2,7 @@ import { getTournamentRankings } from "@/lib/actions/match";
 import { getTournamentAchievementStatus } from "@/lib/actions/achievement";
 import { getTeamColor } from "../data/mock-data";
 import { AchievementActions } from "./AchievementActions";
+import { Avatar } from "@/components/ui/avatar";
 
 interface MVPTabProps {
   tournamentId: string;
@@ -181,11 +182,12 @@ export async function MVPTab({ tournamentId, isOwner, tournamentStatus }: MVPTab
                       const displayName = member.profile?.nickname || member.profile?.email || "Unknown";
                       return (
                         <div key={member.id} className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-card-dark flex items-center justify-center flex-shrink-0">
-                            <span className="material-symbols-outlined text-gray-400 text-base">
-                              person
-                            </span>
-                          </div>
+                          <Avatar
+                            src={member.profile?.avatar_url}
+                            gender={member.profile?.gender}
+                            alt={displayName}
+                            size="sm"
+                          />
                           <div className="flex-1 min-w-0">
                             <span className="text-white text-sm truncate block">{displayName}</span>
                             {member.profile?.status && (

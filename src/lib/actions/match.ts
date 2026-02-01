@@ -155,7 +155,7 @@ export async function getTournamentRankings(
   const { data: profiles } = userIds.length > 0
     ? await supabase
         .from("profiles")
-        .select("id, nickname, email, status")
+        .select("id, nickname, email, status, avatar_url, gender")
         .in("id", userIds)
     : { data: [] };
 

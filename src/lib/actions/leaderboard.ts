@@ -6,6 +6,7 @@ export interface LeaderboardEntry {
   id: string;
   nickname: string;
   gender: string | null;
+  avatar_url: string | null;
   tournamentsParticipated: number;
   matchesPlayed: number;
   goldCount: number;
@@ -29,7 +30,7 @@ export async function getLeaderboard(
   // Fetch all data in parallel to avoid N+1 queries
   const [profilesResult, participantsResult, achievementsResult, matchesResult] =
     await Promise.all([
-      supabase.from("profiles").select("id, nickname, gender"),
+      supabase.from("profiles").select("id, nickname, gender, avatar_url"),
       supabase
         .from("tournament_participants")
         .select("user_id, tournament_id, team_number"),
@@ -114,6 +115,7 @@ export async function getLeaderboard(
         id: profile.id,
         nickname: profile.nickname || "Unknown Player",
         gender: profile.gender,
+        avatar_url: profile.avatar_url,
         tournamentsParticipated: tournamentCountMap.get(profile.id)?.size || 0,
         matchesPlayed: matchCountMap.get(profile.id) || 0,
         goldCount: achievementCounts.gold,

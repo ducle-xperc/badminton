@@ -3,11 +3,12 @@
 import { useState, useMemo } from "react";
 import type { TournamentMatch, BracketType } from "@/types/database";
 import { MatchCard } from "./MatchCard";
+import type { TeamMemberInfo } from "./MatchTab";
 
 interface RoundTabsProps {
   matches: TournamentMatch[];
   canManage: boolean;
-  teamMembersMap: Map<number, string[]>;
+  teamMembersMap: Map<number, TeamMemberInfo[]>;
 }
 
 interface RoundInfo {
@@ -142,7 +143,7 @@ interface BracketSectionProps {
   activeRoundId: string | null;
   onRoundSelect: (roundId: string) => void;
   canManage: boolean;
-  teamMembersMap: Map<number, string[]>;
+  teamMembersMap: Map<number, TeamMemberInfo[]>;
 }
 
 function BracketSection({

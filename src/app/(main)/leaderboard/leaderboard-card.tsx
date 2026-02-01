@@ -1,4 +1,5 @@
 import type { LeaderboardEntry } from "@/lib/actions/leaderboard";
+import { Avatar } from "@/components/ui/avatar";
 
 interface LeaderboardCardProps {
   entry: LeaderboardEntry;
@@ -23,17 +24,6 @@ export function LeaderboardCard({ entry, rank }: LeaderboardCardProps) {
     return "text-gray-500";
   };
 
-  const getDefaultAvatar = (gender: string | null) => {
-    switch (gender) {
-      case "male":
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4";
-      case "female":
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Lily&backgroundColor=ffdfbf";
-      default:
-        return "https://api.dicebear.com/9.x/adventurer/svg?seed=Milo&backgroundColor=c0aede";
-    }
-  };
-
   return (
     <div
       className={`rounded-xl p-4 border ${getRankStyle(rank)} backdrop-blur-sm`}
@@ -51,13 +41,13 @@ export function LeaderboardCard({ entry, rank }: LeaderboardCardProps) {
         </div>
 
         {/* Avatar */}
-        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10 flex-shrink-0">
-          <img
-            src={getDefaultAvatar(entry.gender)}
-            alt={entry.nickname}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <Avatar
+          src={entry.avatar_url}
+          alt={entry.nickname}
+          gender={entry.gender}
+          size="md"
+          className="border-2 border-white/10"
+        />
 
         {/* Player Info */}
         <div className="flex-1 min-w-0">

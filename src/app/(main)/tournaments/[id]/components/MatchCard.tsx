@@ -3,11 +3,13 @@
 import type { TournamentMatch } from "@/types/database";
 import { ScoreEditForm } from "./ScoreEditForm";
 import { getTeamColor } from "../data/mock-data";
+import { TeamMemberAvatar } from "./TeamMemberAvatar";
+import type { TeamMemberInfo } from "./MatchTab";
 
 interface MatchCardProps {
   match: TournamentMatch;
   canEdit: boolean;
-  teamMembersMap: Map<number, string[]>;
+  teamMembersMap: Map<number, TeamMemberInfo[]>;
 }
 
 function getMatchStatusStyles(status: string, isByeMatch: boolean): string {
@@ -24,13 +26,40 @@ function getMatchStatusStyles(status: string, isByeMatch: boolean): string {
   }
 }
 
+interface TeamMembersDisplayProps {
+  members: TeamMemberInfo[];
+  teamSize?: number;
+}
+
+function TeamMembersDisplay({ members, teamSize = 2 }: TeamMembersDisplayProps) {
+  // Create array of exactly teamSize slots, filled with members or undefined
+  const slots = Array.from({ length: teamSize }, (_, idx) => members[idx]);
+
+  return (
+    <>
+      <div className="flex items-center justify-center gap-1 mt-1">
+        {slots.map((member, idx) => (
+          <TeamMemberAvatar key={idx} member={member} />
+        ))}
+      </div>
+      {members.length > 0 ? (
+        <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[100px]" title={members.map(m => m.name).join(", ")}>
+          {members.map(m => m.name).join(", ")}
+        </p>
+      ) : (
+        <p className="text-xs text-gray-500 mt-0.5">No members</p>
+      )}
+    </>
+  );
+}
+
 export function MatchCard({ match, canEdit, teamMembersMap }: MatchCardProps) {
   const team1Colors = getTeamColor(match.team1_number);
   const team2Colors = getTeamColor(match.team2_number);
   const isByeMatch = match.team2_number === null;
   const isCompleted = match.status === "completed";
-  
-  // Get member names for each team
+
+  // Get member info for each team
   const team1Members = match.team1_number ? teamMembersMap.get(match.team1_number) || [] : [];
   const team2Members = match.team2_number ? teamMembersMap.get(match.team2_number) || [] : [];
 
@@ -63,11 +92,7 @@ export function MatchCard({ match, canEdit, teamMembersMap }: MatchCardProps) {
           <p className="text-white font-medium text-sm">
             Team {match.team1_number ?? "TBD"}
           </p>
-          {team1Members.length > 0 && (
-            <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[100px]" title={team1Members.join(", ")}>
-              {team1Members.join(", ")}
-            </p>
-          )}
+          <TeamMembersDisplay members={team1Members} />
           {/* Score display */}
           {match.team1_score !== null && !isByeMatch && (
             <p
@@ -135,11 +160,7 @@ export function MatchCard({ match, canEdit, teamMembersMap }: MatchCardProps) {
               <p className="text-white font-medium text-sm">
                 Team {match.team2_number ?? "TBD"}
               </p>
-              {team2Members.length > 0 && (
-                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[100px]" title={team2Members.join(", ")}>
-                  {team2Members.join(", ")}
-                </p>
-              )}
+              <TeamMembersDisplay members={team2Members} />
               {match.team2_score !== null && (
                 <p
                   className={`text-2xl font-bold mt-1 ${
