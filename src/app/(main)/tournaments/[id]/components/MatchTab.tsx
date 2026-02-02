@@ -11,6 +11,8 @@ export interface TeamMemberInfo {
   name: string;
   avatar_url?: string | null;
   gender?: string | null;
+  status?: string | null;
+  achievementCount?: number;
 }
 
 interface MatchTabProps {
@@ -41,6 +43,8 @@ export async function MatchTab({ tournamentId }: MatchTabProps) {
       name: m.profile?.nickname || "Unknown",
       avatar_url: m.profile?.avatar_url,
       gender: m.profile?.gender,
+      status: m.profile?.status,
+      achievementCount: m.achievementCount || 0,
     }));
     teamMembersMap.set(team.team_number, members);
   });

@@ -32,24 +32,24 @@ interface TeamMembersDisplayProps {
 }
 
 function TeamMembersDisplay({ members, teamSize = 2 }: TeamMembersDisplayProps) {
-  // Create array of exactly teamSize slots, filled with members or undefined
   const slots = Array.from({ length: teamSize }, (_, idx) => members[idx]);
+  const hasMembers = members.length > 0;
+
+  if (!hasMembers) {
+    return (
+      <div className="mt-2 flex items-center justify-center gap-1.5 text-gray-500">
+        <span className="material-symbols-outlined text-sm">group_off</span>
+        <span className="text-xs">No members</span>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="flex items-center justify-center gap-1 mt-1">
-        {slots.map((member, idx) => (
-          <TeamMemberAvatar key={idx} member={member} />
-        ))}
-      </div>
-      {members.length > 0 ? (
-        <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[100px]" title={members.map(m => m.name).join(", ")}>
-          {members.map(m => m.name).join(", ")}
-        </p>
-      ) : (
-        <p className="text-xs text-gray-500 mt-0.5">No members</p>
-      )}
-    </>
+    <div className="mt-2 space-y-1.5">
+      {slots.map((member, idx) => (
+        <TeamMemberAvatar key={idx} member={member} />
+      ))}
+    </div>
   );
 }
 
